@@ -23,3 +23,13 @@
 - Fixed during review: the sidebar's right rule stopped at viewport height; the phone-width test now also asserts the page rendered.
 - Windows gotcha: stopping the background `npm run start` shell left its `node` child holding port 3000, and Playwright reused that stale server after a rebuild ("Application error"). Killed the process; noted in CLAUDE.md.
 - Approved by the user on 2026-11-01 and committed locally.
+
+## 2026-11-01 — Phase 2: dataset ingestion
+- The user extracted the Dryad release to `data/raw/MINDFUL_Data`. 162 `.mat` files, 413.5 MB, all MATLAB v5. The zip was not kept locally, so a content digest of the extracted files is recorded instead.
+- Probed every block before writing the loader (scratch scripts, not committed). A full load of 50 blocks takes ≈ 8 s; an inventory build including hashing takes ≈ 15–30 s on OneDrive.
+- Built `mindful.io` with no web imports. The loader raises on any per-bin row-count mismatch and never transposes. Display-only per-trial fields with the wrong length are set aside with a warning; the analysis fields (`startStops`, `excludeTrials`) stay strict.
+- Bug found while running on real data: the first loader treated a length mismatch in `trialSuccess` as fatal and dropped T11 day_689 Block_14, which made T11 look like 1764 trials. Fixed as described above.
+- Robustness: unreadable files (`OSError`/`ValueError`) are reported as a failed `load` check, not as a 500. A test covers this.
+- Findings: D5, D6 and D8 have no effect on this release. Q10 resolved. T11 trial counts are off by one in each direction (Q12). `useClick` is per block, not per trial.
+- The inventory cache is keyed on path, size and mtime of every `.mat` file. A CLI-built cache with a relative root is rebuilt once by the API (which uses the absolute root).
+- Approved by the user on 2026-11-01 and committed locally.

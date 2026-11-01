@@ -44,7 +44,7 @@ def detect_dataset(data_dir: Path) -> DatasetStatus:
         state="present",
         configured_path=str(data_dir),
         participant_folders=found,
-        message="Participant folders found. Contents not yet validated (Phase 2).",
+        message="Participant folders found. Validation results: GET /api/dataset/summary.",
     )
 
 

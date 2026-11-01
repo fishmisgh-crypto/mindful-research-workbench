@@ -33,7 +33,7 @@ select = ["E", "F", "I", "B", "UP", "SIM"]
 [tool.mypy]
 python_version = "3.13"
 strict = true
-packages = ["app"]
+packages = ["app", "mindful"]
 plugins = ["pydantic.mypy"]
 
 [[tool.mypy.overrides]]

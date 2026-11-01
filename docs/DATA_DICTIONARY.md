@@ -1,6 +1,6 @@
 # Data Dictionary
 
-Source: the Dryad README (dataset v6, 2024-10-25). The archive has **not** been inspected yet. Every shape, dtype and orientation below is a claim from the documentation. Phase 2 must check each one against the real files and update this table. Columns marked *Verified* are filled in during Phase 2.
+Source: the Dryad README (dataset v6, 2024-10-25). The tables below are the documentation's claims, kept as written in Phase 0. **What the real files contain (Phase 2, all 50 blocks inspected) is in [Verified against the files](#verified-against-the-files-phase-2) at the end. Where the two differ, the verified section is authoritative.**
 
 Conventions [D]:
 - `nStep` = number of 20 ms bins in a block.
@@ -76,3 +76,48 @@ Only selected blocks from each session are included [D].
 - **Logical arrays.** They may load as `uint8`. Cast to `bool` explicitly.
 - **Sparse `prctOutliers`.** scipy returns `scipy.sparse`. Keep it sparse.
 - **Scalars and strings.** Use `squeeze_me=True` carefully. `name` may arrive as a `str` or as a char array.
+
+## Verified against the files (Phase 2)
+
+Checked on 2026-11-01 by loading every block of `T11/` (29) and `T5/` (21) with `mindful.io` (`python -m mindful.io.inventory`). Content digest of all 162 `.mat` files: `sha256 5517510fb15c724edc4d3d3246ea08aee7895b31c87356624ff4f793989765c7`.
+
+**Layout**
+- Folders are `T11/day_<trial day>/Block_<nn>/` and `T5/day_<trial day>/Block_<nn>/`, e.g. `T11/day_658/Block_05`. Block numbers are the original session block numbers (e.g. 05, 07), not 1..k. Each T11 session folder also has a `.DS_Store` (ignored).
+- All files are **MATLAB v5** (`MATLAB 5.0 MAT-file, Platform: PCWIN64`); scipy reads them directly. No v7.3 files, so the h5py path is exercised only in tests.
+- `T11(additional)/` holds `personal_use/day_658/Block_08,09` and `random_targets/day_665/Block_08,09` (4 blocks, out of scope).
+
+**data.mat**
+| Field | T11 | T5 | Notes |
+|---|---|---|---|
+| `nctx` | float32 (nStep, 192) | uint64 (nStep, 192) | Values are **rates in crossings/s**: one crossing in a 20 ms bin = 50. T5: 100% of non-zero values are multiples of 50. T11: 86–100% per block, so some T11 values are not whole crossings (cf. "non-causal", Q5). |
+| `spikePower` | float32 (nStep, 192) | **absent** | D8 resolved: the upstream loader also builds 192 features for T5. |
+| `labels` | float32 (nStep, 2) | float64 (nStep, 2) | Equals `targetPos − cursorPos` to < 1e-7 in every block. |
+| `cursorVel` | float32 (nStep, 2) | float64 (nStep, 2) | |
+
+**task.mat**
+| Field | Verified | Notes |
+|---|---|---|
+| `name` | `"circleOfCircles"` (T11), `"Fitts"` (T5) | Not the README's "circle". |
+| `nPointsPerBlock` | uint16 scalar | Equals the row count of every per-bin field in all 50 blocks. T11 ≈ 15,083–15,285 bins (≈ 302–306 s); T5 ≈ 11,995–12,004 (≈ 240 s). |
+| `startStops` | uint16 / int64 (nTrial, 2) | **1-based, inclusive confirmed**: all starts ≥ 1, and `stop == nPointsPerBlock` occurs (T11 day_665 Block_07). Trials are **back to back** (`start[i+1] = stop[i] + 1`) in every block, so non-trial bins exist only before the first trial (≈ 90–500 bins) and after the last. |
+| `excludeTrials` | uint8 (nTrial, 1) | Cast to bool. |
+| `useClick` | uint8 **(1, 1)** | A per-block scalar, not per trial as documented. |
+| `moveDirVect` | float32 (nTrial, 2) | |
+
+**info.mat**
+| Field | Verified | Notes |
+|---|---|---|
+| `angleError` | float32 (nStep, 1), in [0°, 180°] | **Q10 resolved**: the unsigned angle between `labels` and `cursorVel` in the same bin (within 0.5° in 99.8–100% of bins per block; median difference ≈ 1e-6°). NaN exactly where `labels` is the zero vector. T11: ≈ 1.7–2.5% NaN (mostly at the start of a block); T5: none. |
+| `targetPos`, `cursorPos` | float32 (nStep, 2) | `targetPos` has NaNs in T11. |
+| `magEst`, `prctOutliers`, `avgOutliers` | T11 only | `prctOutliers` is sparse (nStep, 192). |
+| `trialSuccess`, `pathEfficiency`, `orthChanges` | (nTrial, 1) | **Exception: T11 day_689 Block_14 has 76 entries for 75 trials** (`timeToTarget`, `angleErrorPerTrial`, `startStops`, `excludeTrials` have 75). These three display-only fields are set aside for that block, not truncated. |
+| `timeToTarget`, `angleErrorPerTrial`, `percentCorrect` | as documented | |
+
+**Counts vs documentation**
+| | Observed | Documented | |
+|---|---|---|---|
+| T11 sessions / blocks | 15 / 29 | 15 / 29 | match |
+| T11 trials | **1839** | 1840 | Off by one. Counting the extra entry in day_689 Block_14's per-trial info fields would give 1840; plausible, unconfirmed (Q12). |
+| T11 excluded trials | **35** | 34 | Unexplained (Q12). |
+| T5 sessions / blocks | 6 / 21 | 6 / 2–4 per session | match |
+| T5 trials / excluded | 1200 / 0 | 1200 / 0 | match |

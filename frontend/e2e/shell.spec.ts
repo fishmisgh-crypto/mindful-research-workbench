@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 import { NAV_ITEMS } from "../lib/nav";
 
-const SCREENSHOT_DIR = "../reports/screenshots/phase1";
+const SCREENSHOT_DIR = "../reports/screenshots/phase2";
 
 for (const item of NAV_ITEMS) {
   test(`${item.label} renders with its nav item active`, async ({ page }) => {
@@ -20,7 +20,7 @@ for (const item of NAV_ITEMS) {
 test("overview reports backend and dataset status", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByText("Running")).toBeVisible();
-  await expect(page.getByText("Study data not loaded")).toBeVisible();
+  await expect(page.getByText(/^(Folders found|Not found)$/)).toBeVisible();
 });
 
 test("overview fits a phone-width viewport", async ({ page }) => {

@@ -38,6 +38,7 @@ After a phase is approved: update docs, run tests, review the diff, confirm no d
 - Backend checks: `.venv/Scripts/python -m pytest -q`, `-m ruff check .`, `-m ruff format --check .`, `-m mypy`
 - Frontend checks: `npm run typecheck`, `npm run lint`, `npm run test:e2e` (needs the API running; saves screenshots to `reports/screenshots/phase1/`)
 - Backend setup: `python -m venv .venv` then `.venv/Scripts/python -m pip install -r requirements.lock` (pinned versions)
+- Dataset inventory (from `backend/`): `.venv/Scripts/python -m mindful.io.inventory ../data/raw/MINDFUL_Data` prints every check. The API caches it in `data/processed/inventory.json` and rebuilds only when `.mat` files change.
 - Windows: after rebuilding the frontend, make sure no old `next start` still holds port 3000. Playwright reuses an existing server, and a stale one serves mismatched chunks.
 
 ## Visual design rules

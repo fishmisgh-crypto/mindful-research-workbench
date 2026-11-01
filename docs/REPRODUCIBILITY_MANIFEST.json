@@ -24,30 +24,72 @@
     "sha256": null,
     "license": "Dryad policy: CC0 1.0 (license field not returned by API; confirm on landing page)",
     "local_path": "data/raw/MINDFUL_Data",
-    "status": "not downloaded"
+    "status": "extracted; validated in Phase 2",
+    "sha256_note": "zip not kept locally; see extracted_content_digest",
+    "extracted_content_digest": {
+      "algorithm": "sha256 over sorted '<relative path> <sha256>' lines of every .mat file under local_path",
+      "value": "5517510fb15c724edc4d3d3246ea08aee7895b31c87356624ff4f793989765c7",
+      "n_mat_files": 162,
+      "computed_by": "python -m mindful.io.inventory data/raw/MINDFUL_Data"
+    }
   },
   "participants": {
-    "T11": {"features": ["nctx", "spikePower"], "n_features": 384, "reference_sessions": [1], "sessions_expected": 15},
-    "T5": {"features": ["nctx"], "n_features": 192, "reference_sessions": [1, 2], "sessions_expected": 6}
+    "T11": {
+      "features": [
+        "nctx",
+        "spikePower"
+      ],
+      "n_features": 384,
+      "reference_sessions": [
+        1
+      ],
+      "sessions_expected": 15
+    },
+    "T5": {
+      "features": [
+        "nctx"
+      ],
+      "n_features": 192,
+      "reference_sessions": [
+        1,
+        2
+      ],
+      "sessions_expected": 6
+    }
   },
   "analysis_defaults": {
     "bin_ms": 20,
-    "zscore": {"scope": "per_block", "window_bins_trailing": 9000, "includes_current": true, "std_ddof": 1, "std_floor": 1e-5},
+    "zscore": {
+      "scope": "per_block",
+      "window_bins_trailing": 9000,
+      "includes_current": true,
+      "std_ddof": 1,
+      "std_floor": 1e-05
+    },
     "pca_dim": 5,
     "reference_ae_max_deg": 4.0,
     "window_bins": 3000,
-    "step_bins": {"paper": 50, "upstream": 500},
+    "step_bins": {
+      "paper": 50,
+      "upstream": 500
+    },
     "kld_orientation": "D_KL(P_reference || P_current)",
-    "covariance_estimator": {"paper": "sample_covariance", "upstream": "uncentered_second_moment"},
+    "covariance_estimator": {
+      "paper": "sample_covariance",
+      "upstream": "uncentered_second_moment"
+    },
     "configurations": {
       "pca5": "top-5 PCs",
       "extended9": "top-5 PCs + cursorVel(t) + cursorVel(t-1)"
     }
   },
   "software": {
-    "python": "3.13.14 (installed; final choice in Phase 1)",
+    "python": "3.13.14",
     "node": "24.18.1",
     "npm": "11.16.0",
-    "locked_dependencies": null
+    "locked_dependencies": {
+      "backend": "backend/requirements.lock",
+      "frontend": "frontend/package-lock.json"
+    }
   }
 }
