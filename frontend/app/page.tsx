@@ -3,16 +3,17 @@ import { KeyValueTable } from "@/components/KeyValueTable";
 import { OverviewHero } from "@/components/OverviewHero";
 import { Section } from "@/components/Section";
 import { StatusMark } from "@/components/StatusMark";
-import { getAnalysis, getHealth, getReport } from "@/lib/api";
+import { getAnalysis, getHealth, getReport, getSnapshotMeta, SNAPSHOT } from "@/lib/api";
 import { PARTICIPANTS, PUBLISHED_TARGETS, STUDY } from "@/lib/study";
 
 export const dynamic = "force-dynamic";
 
 export default async function OverviewPage() {
-  const [health, report, analysis] = await Promise.all([
+  const [health, report, analysis, snapshot] = await Promise.all([
     getHealth(),
     getReport(),
     getAnalysis("T11", "upstream", "pca5"),
+    SNAPSHOT ? getSnapshotMeta() : null,
   ]);
   const reproduced = (participant: string, configuration: string) => {
     if (!report.ok) return null;
@@ -24,11 +25,18 @@ export default async function OverviewPage() {
     <>
       <OverviewHero analysis={analysis} report={report} />
 
-      <Section title="System status" note="GET /api/health">
+      <Section title="System status" note={SNAPSHOT ? "Hosted copy: results saved from the local backend" : "GET /api/health"}>
         {health.ok ? (
           <KeyValueTable
             rows={[
-              { label: "Backend", value: <StatusMark tone="ok">Running</StatusMark> },
+              {
+                label: "Backend",
+                value: snapshot ? (
+                  <StatusMark tone="ok">{`Saved snapshot · ${snapshot.taken_at.slice(0, 10)}`}</StatusMark>
+                ) : (
+                  <StatusMark tone="ok">Running</StatusMark>
+                ),
+              },
               {
                 label: "Dataset",
                 value: (

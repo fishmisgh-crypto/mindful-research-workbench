@@ -8,7 +8,8 @@
     "start": "next start --hostname 127.0.0.1",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "snapshot": "node scripts/export-snapshot.mjs"
   },
   "dependencies": {
     "next": "15.5.28",

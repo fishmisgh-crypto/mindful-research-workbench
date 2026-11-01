@@ -12,3 +12,11 @@ npm run test:e2e     # Playwright smoke test; saves screenshots to ../reports/sc
 ```
 
 `MINDFUL_API_URL` overrides the backend address (default `http://127.0.0.1:8000`).
+
+## Hosted copy (snapshot mode)
+
+With `MINDFUL_SNAPSHOT=1` the frontend reads saved API responses from `snapshot/` instead of the backend. The Vercel deployment runs this way. The snapshot holds the same aggregates the API serves (no raw `.mat` data), with local paths removed. To refresh it, start the backend, then:
+
+```bash
+npm run snapshot
+```

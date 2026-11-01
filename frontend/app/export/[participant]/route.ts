@@ -1,5 +1,9 @@
 /** Proxies the backend's window CSV so the browser never needs the API address. */
 
+import { readFile } from "node:fs/promises";
+
+import { SNAPSHOT, snapshotFile } from "@/lib/api";
+
 const API_URL = process.env.MINDFUL_API_URL ?? "http://127.0.0.1:8000";
 const ALLOWED = {
   participant: ["T11", "T5"],
@@ -19,11 +23,21 @@ export async function GET(request: Request, { params }: { params: Promise<{ part
   ) {
     return new Response("Unknown participant, preset or feature set.", { status: 400 });
   }
+  const apiPath = `/api/exports/${participant}.csv?preset=${preset}&feature_set=${featureSet}`;
+  if (SNAPSHOT) {
+    try {
+      return new Response(await readFile(snapshotFile(apiPath)), {
+        headers: {
+          "Content-Type": "text/csv; charset=utf-8",
+          "Content-Disposition": `attachment; filename="mindful_${participant}_${preset}_${featureSet}.csv"`,
+        },
+      });
+    } catch {
+      return new Response("Not in the saved snapshot.", { status: 404 });
+    }
+  }
   try {
-    const upstream = await fetch(
-      `${API_URL}/api/exports/${participant}.csv?preset=${preset}&feature_set=${featureSet}`,
-      { cache: "no-store" },
-    );
+    const upstream = await fetch(`${API_URL}${apiPath}`, { cache: "no-store" });
     return new Response(upstream.body, {
       status: upstream.status,
       headers: {

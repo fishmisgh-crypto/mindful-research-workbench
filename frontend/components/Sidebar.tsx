@@ -6,6 +6,8 @@ import { useLayoutEffect, useRef, useState } from "react";
 
 import { NAV_ITEMS } from "@/lib/nav";
 
+import { LogoMark } from "./LogoMark";
+
 function isActive(pathname: string, href: string): boolean {
   return href === "/" ? pathname === "/" : pathname.startsWith(href);
 }
@@ -20,6 +22,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const listRef = useRef<HTMLUListElement>(null);
   const [marker, setMarker] = useState<Marker>(null);
+  const [animate, setAnimate] = useState(false); // no slide on first placement, only on navigation
 
   useLayoutEffect(() => {
     const place = () => {
@@ -32,8 +35,12 @@ export function Sidebar() {
       setMarker(rail ? { x: 0, y, w: 2, h } : { x, y: y + h - 2, w, h: 2 });
     };
     place();
+    const id = requestAnimationFrame(() => setAnimate(true));
     window.addEventListener("resize", place);
-    return () => window.removeEventListener("resize", place);
+    return () => {
+      cancelAnimationFrame(id);
+      window.removeEventListener("resize", place);
+    };
   }, [pathname]);
 
   return (
@@ -43,17 +50,23 @@ export function Sidebar() {
     >
       <div className="md:sticky md:top-0">
         <div className="px-6 pt-6 pb-5 md:pt-8">
-          <Link href="/" className="font-display block text-2xl leading-none tracking-[-0.01em]">
+          <Link
+            href="/"
+            className="font-display inline-flex items-center gap-2.5 text-2xl leading-none tracking-[-0.01em]"
+          >
+            <LogoMark />
             MINDFUL
           </Link>
           <p className="text-bone-3 mt-2 text-[13px]">Research workbench</p>
         </div>
         <nav aria-label="Sections" className="pb-3 md:pb-0">
-          <ul ref={listRef} className="relative flex overflow-x-auto md:block">
+          <ul ref={listRef} className="relative flex overflow-x-auto [scrollbar-width:none] md:block [&::-webkit-scrollbar]:hidden">
             {marker ? (
               <span
                 aria-hidden
-                className="bg-signal pointer-events-none absolute top-0 left-0 transition-[transform,width,height] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                className={`bg-signal pointer-events-none absolute top-0 left-0 ${
+                  animate ? "transition-[transform,width,height] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]" : ""
+                }`}
                 style={{
                   transform: `translate(${marker.x}px, ${marker.y}px)`,
                   width: marker.w,
@@ -79,11 +92,6 @@ export function Sidebar() {
             })}
           </ul>
         </nav>
-        <p className="text-bone-3 hidden px-6 pt-10 text-[12px] leading-relaxed md:block">
-          Runs on this computer only.
-          <br />
-          Research software, not a medical device.
-        </p>
       </div>
     </aside>
   );

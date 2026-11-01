@@ -1,6 +1,15 @@
 /** Typed client for the local FastAPI backend. Server-side only. */
 
+import { readFile } from "node:fs/promises";
+import path from "node:path";
+
 const API_URL = process.env.MINDFUL_API_URL ?? "http://127.0.0.1:8000";
+
+/** Hosted builds read saved backend responses (scripts/export-snapshot.mjs) instead of the API. */
+export const SNAPSHOT = process.env.MINDFUL_SNAPSHOT === "1";
+
+export const snapshotFile = (apiPath: string) =>
+  path.join(process.cwd(), "snapshot", encodeURIComponent(apiPath));
 
 export interface DatasetStatus {
   state: "missing" | "present";
@@ -281,9 +290,26 @@ export type ApiResult<T> =
   | { ok: true; data: T }
   | { ok: false; error: string; status?: number };
 
-async function getJson<T>(path: string): Promise<ApiResult<T>> {
+async function getSnapshotJson<T>(apiPath: string): Promise<ApiResult<T>> {
   try {
-    const response = await fetch(`${API_URL}${path}`, { cache: "no-store" });
+    return { ok: true, data: JSON.parse(await readFile(`${snapshotFile(apiPath)}.json`, "utf8")) as T };
+  } catch {
+    return { ok: false, status: 404, error: `Not in the saved snapshot: ${apiPath}` };
+  }
+}
+
+export async function getSnapshotMeta(): Promise<{ taken_at: string } | null> {
+  try {
+    return JSON.parse(await readFile(path.join(process.cwd(), "snapshot", "meta.json"), "utf8"));
+  } catch {
+    return null;
+  }
+}
+
+async function getJson<T>(apiPath: string): Promise<ApiResult<T>> {
+  if (SNAPSHOT) return getSnapshotJson<T>(apiPath);
+  try {
+    const response = await fetch(`${API_URL}${apiPath}`, { cache: "no-store" });
     if (!response.ok) {
       let detail = "";
       try {
@@ -312,7 +338,7 @@ export const getPreprocess = (participant: string, preset: Preset) =>
 
 export const getReport = () => getJson<ReproductionReport>("/api/report");
 
-export const getAnalysis =(participant: string, preset: Preset, featureSet: FeatureSet) =>
+export const getAnalysis = (participant: string, preset: Preset, featureSet: FeatureSet) =>
   getJson<AnalysisResponse>(
     `/api/analysis/${encodeURIComponent(participant)}?preset=${preset}&feature_set=${featureSet}`,
   );
