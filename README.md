@@ -4,6 +4,8 @@ An independent Python reproduction of **MINDFUL**, the neural-instability measur
 
 MINDFUL compares each minute of activity recorded by an implanted brain–computer interface with a reference day, using the Kullback–Leibler divergence (KLD) between Gaussian fits, and asks how closely that drift tracks the cursor's angular error. This repository recomputes it from the released recordings and code, compares the result with the paper, and provides a local dashboard for inspecting every step.
 
+**Live dashboard (saved snapshot of the results):** https://mindful-research-workbench.vercel.app. The hosted copy shows the same aggregates the local backend serves; the raw recordings never leave the local machine. To recompute anything, run the project locally (see Run).
+
 ## Results
 
 With the released code's settings (the `upstream` preset), all four primary results fall within ±0.02 of the published values:
