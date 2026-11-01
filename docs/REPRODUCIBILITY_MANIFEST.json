@@ -84,12 +84,121 @@
     }
   },
   "software": {
+    "os": "Windows-11-10.0.26200-SP0",
     "python": "3.13.14",
-    "node": "24.18.1",
+    "node": "v24.18.1",
     "npm": "11.16.0",
+    "backend_key_packages": {
+      "numpy": "2.5.4",
+      "scipy": "1.18.1",
+      "pandas": "3.1.0",
+      "scikit-learn": "1.9.1",
+      "h5py": "3.16.0",
+      "fastapi": "0.162.0",
+      "pydantic": "2.14.2"
+    },
+    "frontend_key_packages": {
+      "next": "15.5.28",
+      "react": "19.1.0",
+      "react-plotly.js": "2.6.0",
+      "plotly.js-basic-dist-min": "2.35.2",
+      "tailwindcss": "4.3.3",
+      "@playwright/test": "1.56.1"
+    },
     "locked_dependencies": {
       "backend": "backend/requirements.lock",
       "frontend": "frontend/package-lock.json"
     }
+  },
+  "presets": {
+    "upstream": {
+      "config_digest": "5346ab59b08f",
+      "config": {
+        "preset": "upstream",
+        "preprocess": {
+          "zscore_window_bins": 9000,
+          "zscore_std_floor": 1e-05,
+          "window_bins": 3000,
+          "step_bins": 500,
+          "pca_dim": 5,
+          "reference_ae_max_deg": 4.0,
+          "include_excluded_trials": false,
+          "reference_scope": "sessions",
+          "velocity_lag_bins": 1
+        },
+        "covariance_estimator": "uncentered_second_moment",
+        "session_end_handling": "nan_last_n_windows",
+        "regularization": "none"
+      }
+    },
+    "paper": {
+      "config_digest": "0b9716835eb7",
+      "config": {
+        "preset": "paper",
+        "preprocess": {
+          "zscore_window_bins": 9000,
+          "zscore_std_floor": 1e-05,
+          "window_bins": 3000,
+          "step_bins": 50,
+          "pca_dim": 5,
+          "reference_ae_max_deg": 4.0,
+          "include_excluded_trials": false,
+          "reference_scope": "sessions",
+          "velocity_lag_bins": 1
+        },
+        "covariance_estimator": "sample_covariance",
+        "session_end_handling": "nan_last_n_windows",
+        "regularization": "none"
+      }
+    },
+    "fig1b_preprocess": {
+      "config_digest": "a31f8eda1f52",
+      "config": {
+        "zscore_window_bins": 9000,
+        "zscore_std_floor": 1e-05,
+        "window_bins": 3000,
+        "step_bins": 500,
+        "pca_dim": 5,
+        "reference_ae_max_deg": 4.0,
+        "include_excluded_trials": false,
+        "reference_scope": "all",
+        "velocity_lag_bins": 1
+      }
+    }
+  },
+  "results": {
+    "run_matrix_digest": "2c5946e7bddc",
+    "report_generated_at": "2026-11-01T14:54:17+00:00",
+    "n_runs": 32,
+    "n_fig1b_variants": 4,
+    "primary_upstream": {
+      "T11-pca5-upstream": {
+        "pearson_r": 0.923955,
+        "spearman_rho": 0.89896,
+        "n_windows": 727
+      },
+      "T11-extended9-upstream": {
+        "pearson_r": 0.945338,
+        "spearman_rho": 0.9163,
+        "n_windows": 727
+      },
+      "T5-pca5-upstream": {
+        "pearson_r": 0.579885,
+        "spearman_rho": 0.58641,
+        "n_windows": 437
+      },
+      "T5-extended9-upstream": {
+        "pearson_r": 0.734819,
+        "spearman_rho": 0.76975,
+        "n_windows": 437
+      }
+    },
+    "match_tolerance": 0.02,
+    "artifacts": {
+      "results_doc": "docs/REPRODUCTION_RESULTS.md",
+      "standalone_report": "reports/reproduction_report.html",
+      "report_json": "data/processed/report/reproduction_<run matrix digest>.json (git-ignored; regenerate with python -m mindful.reproduce)"
+    },
+    "verification": "2026-11-01: fresh git clone of commit 80ee6a8; new venv from requirements.lock (installed set identical to the lock), npm ci; 112 backend tests, typecheck, lint and build passed; full matrix recomputed from scratch into an empty directory: 264 values bit-identical to the dashboard's report (largest difference 0.0)"
   }
 }

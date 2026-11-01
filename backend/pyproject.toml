@@ -39,3 +39,6 @@ plugins = ["pydantic.mypy"]
 [[tool.mypy.overrides]]
 module = ["scipy.*", "h5py.*", "sklearn.*", "pandas.*"]
 ignore_missing_imports = true
+
+[tool.ruff.lint.per-file-ignores]
+"mindful/export_report.py" = ["E501"]  # HTML template strings

@@ -72,3 +72,11 @@
 - CSV export proxies through a Next route so the browser never needs the API address. Inputs are allow-listed on both sides.
 - Fixes found while reviewing screenshots: nav marker measured the link inside a positioned `<li>` (always offset 0); entrance animation blurred screenshots (tests now use reduced motion); `last_analysis_run` was always null; stale "not yet verified" and "computed in Phase 5" notes; hero caption claimed pointer-only reveal on touch screens; all-caps tracked labels replaced with sentence case.
 - Approved by the user on 2026-11-01 and committed locally.
+
+## 2026-11-01 — Phase 7: final validation and delivery
+- Clean rebuild from a fresh clone. The first attempt in the scratchpad failed during `pip install`: the path exceeded Windows' 260-character limit inside scikit-learn's package tree. Repeated in a short path (`%TEMP%/mc`); the installed set matched `requirements.lock` exactly and every check passed.
+- Recompute from scratch with the clean clone's code into an empty directory took 6 min; all 264 compared values were bit-identical to the existing report.
+- Standalone report exporter: two issues caught while checking its output: a hard-coded p-value statement (now computed, and phrased as underflow when every p is 0) and an unescaped `<` in that sentence (now escaped).
+- The manifest first recorded frontend version ranges from package.json; replaced with exact versions from package-lock.json.
+- README results table generated from the report JSON, not typed.
+- Approved by the user on 2026-11-01 and committed locally. All phases complete.
