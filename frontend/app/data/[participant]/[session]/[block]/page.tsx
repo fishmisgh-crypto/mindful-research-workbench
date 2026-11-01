@@ -63,19 +63,18 @@ export default async function BlockPage({ params }: { params: Promise<Params> })
   const { participant, session, block } = await params;
   const result = await getBlockDetail(participant, session, block);
   const crumb = (
-    <p className="text-ink-3 mb-6 font-mono text-[11px]">
-      <Link href="/data" className="hover:text-ink underline underline-offset-4">
+    <nav aria-label="Breadcrumb">
+      <Link href="/data" className="hover:text-bone underline underline-offset-4">
         Data Explorer
       </Link>{" "}
       / {participant} / {session} / {block}
-    </p>
+    </nav>
   );
 
   if (!result.ok) {
     return (
       <>
-        {crumb}
-        <PageHeader index="02" title={`${participant} · ${session} · ${block}`} />
+        <PageHeader title={`${participant} · ${session} · ${block}`} crumb={crumb} />
         <Section title="Block">
           <EmptyState title="Block unavailable">{result.error}</EmptyState>
         </Section>
@@ -91,8 +90,7 @@ export default async function BlockPage({ params }: { params: Promise<Params> })
 
   return (
     <>
-      {crumb}
-      <PageHeader index="02" title={`${d.participant} · ${d.session} · ${s.name}`}>
+      <PageHeader title={`${d.participant} · ${d.session} · ${s.name}`} crumb={crumb}>
         Task “{s.task_name}”, {fixed(s.duration_s, 1)} s of 20 ms bins. Trial bins use the
         file&apos;s 1-based inclusive <code className="font-mono text-[0.9em]">startStops</code>.
       </PageHeader>

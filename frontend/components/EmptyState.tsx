@@ -15,7 +15,7 @@ export function EmptyState({
       <p className="font-display text-lg">{title}</p>
       <div className="text-ink-2 mt-2 max-w-[64ch] text-sm leading-relaxed">{children}</div>
       {phase ? (
-        <p className="text-ink-3 mt-4 font-mono text-[11px] tracking-wide uppercase">{phase}</p>
+        <p className="text-ink-3 mt-4 text-[13px]">{phase}</p>
       ) : null}
     </div>
   );

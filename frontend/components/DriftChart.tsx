@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 /**
  * Two stacked panels on one x-axis (window index): KLD on top, median AE below.
  * No dual axes, no smoothing, NaN windows are gaps, session boundaries are hairlines.
@@ -81,6 +83,7 @@ export function DriftChart({
   dayOfSession,
   referenceDays,
   xLabel,
+  wrap,
 }: {
   title: string;
   context: string;
@@ -90,6 +93,8 @@ export function DriftChart({
   dayOfSession: Record<number, number>;
   referenceDays: number[];
   xLabel: string;
+  /** Optional interactive version that shows this SVG until it is ready. */
+  wrap?: (staticChart: ReactNode) => ReactNode;
 }) {
   const n = Math.max(1, kld.length);
   const x = (i: number) => M.left + (i / Math.max(1, n - 1)) * (W - M.left - M.right);
@@ -102,50 +107,54 @@ export function DriftChart({
   const kTop = M.top;
   const aTop = M.top + PANEL_H + GAP;
 
+  const svg = (
+    <div className="overflow-x-auto">
+      <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full min-w-[640px]" role="img" aria-label={`${title}. ${context}`}>
+        {boundaries.map((i) => {
+          const day = dayOfSession[sessionIndex[i]];
+          const isRef = referenceDays.includes(day);
+          return (
+            <g key={i}>
+              <line
+                x1={x(i)}
+                x2={x(i)}
+                y1={M.top - 6}
+                y2={aTop + PANEL_H}
+                className={i === 0 ? "stroke-transparent" : "stroke-rule-strong"}
+                strokeWidth={1}
+              />
+              <text x={x(i) + 3} y={M.top - 12} className="fill-ink-3 font-mono text-[9px]">
+                {day}
+                {isRef ? " ref" : ""}
+              </text>
+            </g>
+          );
+        })}
+        <Panel values={kld} top={kTop} yMax={kMax} label="KLD (nats)" stroke="stroke-accent" x={x} />
+        <Panel values={medianAe} top={aTop} yMax={aMax} label="Median AE (°)" stroke="stroke-ink" x={x} />
+        <line x1={M.left} x2={W - M.right} y1={aTop + PANEL_H} y2={aTop + PANEL_H} className="stroke-ink" strokeWidth={1} />
+        {[0, 0.25, 0.5, 0.75, 1].map((f) => {
+          const i = Math.round(f * (n - 1));
+          return (
+            <text key={f} x={x(i)} y={aTop + PANEL_H + 16} textAnchor="middle" className="fill-ink-3 font-mono text-[10px]">
+              {i}
+            </text>
+          );
+        })}
+        <text x={M.left + (W - M.left - M.right) / 2} y={H - 8} textAnchor="middle" className="fill-ink-2 text-[11px]">
+          {xLabel}
+        </text>
+      </svg>
+    </div>
+  );
+
   return (
     <figure>
       <figcaption className="mb-3">
         <p className="font-display text-lg">{title}</p>
         <p className="text-ink-3 font-mono text-[11px] leading-relaxed">{context}</p>
       </figcaption>
-      <div className="overflow-x-auto">
-        <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full min-w-[640px]" role="img" aria-label={`${title}. ${context}`}>
-          {boundaries.map((i) => {
-            const day = dayOfSession[sessionIndex[i]];
-            const isRef = referenceDays.includes(day);
-            return (
-              <g key={i}>
-                <line
-                  x1={x(i)}
-                  x2={x(i)}
-                  y1={M.top - 6}
-                  y2={aTop + PANEL_H}
-                  className={i === 0 ? "stroke-transparent" : "stroke-rule-strong"}
-                  strokeWidth={1}
-                />
-                <text x={x(i) + 3} y={M.top - 12} className="fill-ink-3 font-mono text-[9px]">
-                  {day}
-                  {isRef ? " ref" : ""}
-                </text>
-              </g>
-            );
-          })}
-          <Panel values={kld} top={kTop} yMax={kMax} label="KLD (nats)" stroke="stroke-accent" x={x} />
-          <Panel values={medianAe} top={aTop} yMax={aMax} label="Median AE (°)" stroke="stroke-ink" x={x} />
-          <line x1={M.left} x2={W - M.right} y1={aTop + PANEL_H} y2={aTop + PANEL_H} className="stroke-ink" strokeWidth={1} />
-          {[0, 0.25, 0.5, 0.75, 1].map((f) => {
-            const i = Math.round(f * (n - 1));
-            return (
-              <text key={f} x={x(i)} y={aTop + PANEL_H + 16} textAnchor="middle" className="fill-ink-3 font-mono text-[10px]">
-                {i}
-              </text>
-            );
-          })}
-          <text x={M.left + (W - M.left - M.right) / 2} y={H - 8} textAnchor="middle" className="fill-ink-2 text-[11px]">
-            {xLabel}
-          </text>
-        </svg>
-      </div>
+      {wrap ? wrap(svg) : svg}
     </figure>
   );
 }

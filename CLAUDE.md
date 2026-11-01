@@ -40,14 +40,17 @@ After a phase is approved: update docs, run tests, review the diff, confirm no d
 - Backend setup: `python -m venv .venv` then `.venv/Scripts/python -m pip install -r requirements.lock` (pinned versions)
 - Reproduction report (from `backend/`): `.venv/Scripts/python -m mindful.reproduce ../data/raw/MINDFUL_Data ../data/processed` (≈ 5 min cold; cached afterwards)
 - Analysis (from `backend/`): `.venv/Scripts/python -m mindful.cli analyse ../data/raw/MINDFUL_Data ../data/processed T11 upstream` (reuses preprocessing; writes `data/processed/analysis/*.json`)
-- Playwright runs single-worker (`workers: 1`): this machine has ~8 GB RAM
+- Playwright runs single-worker (`workers: 1`, this machine has ~8 GB RAM) with reduced motion, so screenshots are not taken mid-animation
 - Preprocessing (from `backend/`): `.venv/Scripts/python -m mindful.preprocess.run ../data/raw/MINDFUL_Data T11 upstream ../data/processed/preprocess` prints diagnostics and writes `.json` + `.npz` (the API reuses them while the dataset fingerprint matches)
 - Dataset inventory (from `backend/`): `.venv/Scripts/python -m mindful.io.inventory ../data/raw/MINDFUL_Data` prints every check. The API caches it in `data/processed/inventory.json` and rebuilds only when `.mat` files change.
 - Windows: after rebuilding the frontend, make sure no old `next start` still holds port 3000. Playwright reuses an existing server, and a stale one serves mismatched chunks.
 
 ## Visual design rules
-- Editorial scientific instrument, not a SaaS dashboard. Warm off-white / near-black / gray hairlines, **one** accent at most.
-- Display serif for titles, a sans-serif for UI text, monospace for numbers and metadata.
-- Not allowed: gradients, glassmorphism, neon, heavy rounding, card grids, decorative icons, fake activity, gratuitous animation, oversized stat tiles.
+Two surfaces (decided 2026-11-01, OPEN_QUESTIONS Q13; references in `ui inspirations/`, untracked):
+- **Housing** (dark graphite `#0d1418`, bone text): the rail, page header bands, and the Overview hero. Instrument Serif display type (a full line may be italic, never a single accented word), pill links in the hero only, one orchestrated entrance on the Overview, and the pointer-driven reveal of the drift trace. All motion respects `prefers-reduced-motion`.
+- **Paper** (warm off-white, near-black ink, grey hairlines): every table and chart. The scientific rules below apply without exception.
+- One accent family: oxblood `#8a2b1f` on paper, lifted `#c4545f` on the housing.
+- Type: Instrument Serif for display, IBM Plex Sans for UI text, IBM Plex Mono for numbers and identifiers. Sentence case; no tracked all-caps labels.
+- Not allowed on paper: gradients, glassmorphism, neon, heavy rounding, card grids, decorative icons, fake activity, gratuitous animation, oversized stat tiles.
 - Navigation: Overview · Data Explorer · Drift Analysis · Reproduction Report · Methods & Sources. Nothing else without a research reason.
-- Charts: titled, axes with units, participant + session/time range + preset printed on the chart, NaN shown as gaps, no smoothing, no dual axes (stack KLD and AE panels instead).
+- Charts: titled, axes with units, participant + session/time range + preset printed on the chart, NaN shown as gaps, no smoothing, no dual axes (stack KLD and AE panels instead). Interactive charts (Plotly basic bundle, client-only) keep the server-rendered SVG as their fallback until they draw. The hero trace may scale each series to its own range only if the caption says so.

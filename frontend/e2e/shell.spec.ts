@@ -2,12 +2,13 @@ import { expect, test } from "@playwright/test";
 
 import { NAV_ITEMS } from "../lib/nav";
 
-const SCREENSHOT_DIR = "../reports/screenshots/phase5";
+const SCREENSHOT_DIR = "../reports/screenshots/phase6";
 
 for (const item of NAV_ITEMS) {
   test(`${item.label} renders with its nav item active`, async ({ page }) => {
     await page.goto(item.href);
-    await expect(page.getByRole("heading", { level: 1, name: item.label })).toBeVisible();
+    const title = item.href === "/" ? /The signal drifts/ : item.label;
+    await expect(page.getByRole("heading", { level: 1, name: title })).toBeVisible();
     await expect(page.getByRole("link", { name: new RegExp(item.label) })).toHaveAttribute(
       "aria-current",
       "page",
@@ -26,7 +27,7 @@ test("overview reports backend and dataset status", async ({ page }) => {
 test("overview fits a phone-width viewport", async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1, name: "Overview" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: /The signal drifts/ })).toBeVisible();
   const overflow = await page.evaluate(
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
   );

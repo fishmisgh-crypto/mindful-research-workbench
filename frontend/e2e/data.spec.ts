@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const SCREENSHOT_DIR = "../reports/screenshots/phase5";
+const SCREENSHOT_DIR = "../reports/screenshots/phase6";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/data");

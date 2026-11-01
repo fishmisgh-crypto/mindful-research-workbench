@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
 /*
- * Design tokens. Warm neutral paper, near-black ink, hairline rules,
- * a single oxblood accent used sparingly (active state, key data series).
+ * Two surfaces (OPEN Q13):
+ *  - housing: dark graphite for the rail, page headers and the Overview hero
+ *  - paper: warm off-white readout for every table and chart (scientific rules)
+ * One accent family: oxblood on paper, lifted oxblood on the housing.
  */
 @theme {
   --color-paper: #f6f4ee;
@@ -15,11 +17,20 @@
   --color-accent: #8a2b1f;
   --color-accent-wash: #f1e6e1;
 
-  --font-display: var(--font-newsreader), "Times New Roman", serif;
+  --color-housing: #0d1418;
+  --color-housing-2: #141d22;
+  --color-bone: #ece8de;
+  --color-bone-2: #b9bcb3;
+  --color-bone-3: #848d88;
+  --color-seam: #26313a;
+  --color-signal: #c4545f;
+
+  --font-display: var(--font-instrument), "Times New Roman", serif;
   --font-sans: var(--font-plex-sans), system-ui, sans-serif;
   --font-mono: var(--font-plex-mono), ui-monospace, monospace;
 
   --radius-xs: 2px;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 html {
@@ -45,8 +56,48 @@ body {
   outline-offset: 2px;
 }
 
+[data-surface="housing"] :focus-visible {
+  outline-color: var(--color-bone);
+}
+
+/* The one orchestrated entrance: Overview headline lines, then the drift trace. */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+    filter: blur(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
+}
+
+@keyframes trace-in {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.rise-in {
+  animation: rise-in 1.1s var(--ease-out-expo) both;
+}
+
+.trace-in {
+  stroke-dasharray: 1;
+  animation: trace-in 2.4s var(--ease-out-expo) 0.5s both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;
+  }
+  .rise-in,
+  .trace-in {
+    animation: none;
   }
 }

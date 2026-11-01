@@ -49,3 +49,22 @@ def test_windows_can_be_omitted(client: TestClient) -> None:
 def test_bad_inputs_rejected(client: TestClient) -> None:
     assert client.get("/api/analysis/T5?feature_set=pca9").status_code == 422
     assert client.get("/api/analysis/T11").status_code == 404
+
+
+def test_csv_export_has_one_row_per_window(client: TestClient) -> None:
+    response = client.get("/api/exports/T5.csv?feature_set=extended9")
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("text/csv")
+    assert "attachment" in response.headers["content-disposition"]
+    lines = response.text.strip().split("\n")
+    header = lines[0].split(",")
+    assert header[:4] == ["participant", "preset", "feature_set", "config_digest"]
+    assert "kld_nats" in header and "median_angular_error_deg" in header
+    n_windows = client.get("/api/analysis/T5?feature_set=extended9").json()["summaries"][
+        "extended9"
+    ]["n_windows"]
+    assert len(lines) - 1 == n_windows
+    rows = [dict(zip(header, line.split(","), strict=True)) for line in lines[1:]]
+    session_end = [r for r in rows if r["status"] == "session_end"]
+    assert session_end
+    assert all(r["kld_nats"] == "" and r["median_angular_error_deg"] == "" for r in session_end)

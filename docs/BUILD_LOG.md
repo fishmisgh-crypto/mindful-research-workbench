@@ -64,3 +64,11 @@
 - Results: see docs/REPRODUCTION_RESULTS.md.
 - UI fixes: the comparison tables overflowed the content column; replaced the all-identical p-value column with one data-driven line; the tolerance column now reads within / differs instead of pass / warn.
 - Approved by the user on 2026-11-01 and committed locally. Design direction for Phase 6 decided (OPEN Q13).
+
+## 2026-11-01 — Phase 6: dashboard integration
+- Design direction decided by the user (OPEN Q13). Read the inspiration prompts and opened the two BCI Dribbble shots: both are light card dashboards with a lime accent, so only the dark rail and oversized display headline were taken from them; the hero mechanics (spotlight reveal, staggered blur-rise, pill links) come from the prompts file.
+- The hero's memorable element is the study's own claim made tangible: the pointer reveals median angular error under the KLD trace. Each series is scaled to its own range, and the caption says so.
+- Plotly loads only in the browser (`next/dynamic`, `ssr: false`), from the basic bundle. First-load JS on /analysis stays at 109 kB. The static SVG remains until Plotly has drawn.
+- CSV export proxies through a Next route so the browser never needs the API address. Inputs are allow-listed on both sides.
+- Fixes found while reviewing screenshots: nav marker measured the link inside a positioned `<li>` (always offset 0); entrance animation blurred screenshots (tests now use reduced motion); `last_analysis_run` was always null; stale "not yet verified" and "computed in Phase 5" notes; hero caption claimed pointer-only reveal on touch screens; all-caps tracked labels replaced with sentence case.
+- Approved by the user on 2026-11-01 and committed locally.

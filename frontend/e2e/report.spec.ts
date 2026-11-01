@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const SCREENSHOT_DIR = "../reports/screenshots/phase5";
+const SCREENSHOT_DIR = "../reports/screenshots/phase6";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/report");
@@ -17,7 +17,8 @@ test("report compares every primary run with the published value", async ({ page
     has: page.getByRole("heading", { name: "Single-parameter changes" }),
   });
   await expect(ablations.locator("tbody tr")).toHaveCount(20);
-  await expect(page.getByRole("img", { name: /KLD of each 4° angular-error bin/ })).toHaveCount(2);
+  await expect(page.getByText(/KLD of each 4° angular-error bin/)).toHaveCount(2);
+  await expect(page.locator(".js-plotly-plot")).toHaveCount(2);
   await expect(page.getByText("comparison only, never used in a calculation", { exact: false })).toBeVisible();
   await page.screenshot({ path: `${SCREENSHOT_DIR}/04-report.png`, fullPage: true });
 });

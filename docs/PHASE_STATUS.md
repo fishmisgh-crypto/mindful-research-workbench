@@ -8,7 +8,7 @@
 | 3 | Preprocessing & feature engineering | **Approved** | 2026-11-01 |
 | 4 | KLD & MINDFUL engine | **Approved** | 2026-11-01 |
 | 5 | Reproduce the research results | **Approved** | 2026-11-01 |
-| 6 | Dashboard integration | Pending | |
+| 6 | Dashboard integration | **Approved** | 2026-11-01 |
 | 7 | Final validation & delivery | Pending | |
 
 ## Phase 0 deliverables
@@ -54,3 +54,13 @@
 - frontend: Reproduction Report page (summary, primary, ablations, velocity sets, Fig 1b scatters, provenance); Overview shows reproduced r / ρ next to published targets
 - docs/REPRODUCTION_RESULTS.md (generated from the report JSON)
 - tests: 110 backend, 18 Playwright; screenshots in `reports/screenshots/phase5/`
+
+## Phase 6 deliverables
+- Visual direction (OPEN Q13): dark housing (rail, header bands, Overview hero) around the paper readout; Instrument Serif display type; one accent family; CLAUDE.md visual rules rewritten to match
+- Overview hero: the real T11 KLD trace with median angular error revealed under the pointer (shown in full on touch screens), with an explicit caption; one orchestrated entrance; reduced motion respected
+- Rail: a 2px marker slides to the active section on navigation
+- Interactive charts (Plotly basic bundle, client-only, server-rendered SVG kept as fallback): Drift Analysis panels and Fig 1b scatters, with hover values, zoom and PNG export
+- CSV export of window tables: `GET /api/exports/{participant}.csv` behind a Next route (`/export/{participant}`)
+- Methods & Sources: interactive D1–D9 table; measured effects computed from the reproduction report
+- Health reports the newest cached analysis run
+- tests: 112 backend, 21 Playwright (reduced motion for stable screenshots); screenshots in `reports/screenshots/phase6/`

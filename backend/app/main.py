@@ -5,7 +5,7 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import analysis, dataset, health, preprocess, report
+from app.api import analysis, dataset, exports, health, preprocess, report
 from app.core.settings import get_settings
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -29,6 +29,7 @@ def create_app() -> FastAPI:
     app.include_router(preprocess.router)
     app.include_router(analysis.router)
     app.include_router(report.router)
+    app.include_router(exports.router)
     return app
 
 

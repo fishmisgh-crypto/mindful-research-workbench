@@ -5,6 +5,7 @@ validation of MATLAB files belongs to Phase 2.
 """
 
 import platform
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Annotated
 
@@ -48,6 +49,15 @@ def detect_dataset(data_dir: Path) -> DatasetStatus:
     )
 
 
+def last_analysis_run(processed_dir: Path) -> str | None:
+    """Modification time of the newest cached analysis result, if any."""
+    runs = list((processed_dir / "analysis").glob("*.json"))
+    if not runs:
+        return None
+    newest = max(p.stat().st_mtime for p in runs)
+    return datetime.fromtimestamp(newest, UTC).isoformat(timespec="seconds")
+
+
 @router.get("/api/health", response_model=HealthResponse)
 def health(settings: Annotated[Settings, Depends(get_settings)]) -> HealthResponse:
     return HealthResponse(
@@ -61,5 +71,5 @@ def health(settings: Annotated[Settings, Depends(get_settings)]) -> HealthRespon
         ),
         dataset=detect_dataset(settings.data_dir),
         upstream_reference_present=(settings.upstream_dir / "utils" / "MINDFUL.m").is_file(),
-        last_analysis_run=None,
+        last_analysis_run=last_analysis_run(settings.processed_dir),
     )

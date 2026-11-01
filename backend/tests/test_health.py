@@ -9,7 +9,9 @@ from app.main import create_app
 
 def client_with_data_dir(data_dir: Path) -> TestClient:
     app = create_app()
-    app.dependency_overrides[get_settings] = lambda: Settings(data_dir=data_dir)
+    app.dependency_overrides[get_settings] = lambda: Settings(
+        data_dir=data_dir, processed_dir=data_dir.parent / "processed"
+    )
     return TestClient(app)
 
 
@@ -20,6 +22,15 @@ def test_health_reports_missing_dataset(tmp_path: Path) -> None:
     assert body["status"] == "ok"
     assert body["dataset"]["state"] == "missing"
     assert body["last_analysis_run"] is None
+
+
+def test_last_analysis_run_reports_newest_cached_result(tmp_path: Path) -> None:
+    from app.api.health import last_analysis_run
+
+    assert last_analysis_run(tmp_path) is None
+    (tmp_path / "analysis").mkdir()
+    (tmp_path / "analysis" / "T11_x.json").write_text("{}")
+    assert last_analysis_run(tmp_path) is not None
 
 
 def test_detect_dataset_requires_both_participants(tmp_path: Path) -> None:

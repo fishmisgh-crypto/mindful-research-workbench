@@ -114,15 +114,15 @@ function ParticipantSection({
           },
         ]}
       />
-      <h3 className="text-ink-3 mt-8 mb-2 font-mono text-[11px] tracking-wide uppercase">
+      <h3 className="text-ink-2 mt-10 mb-3 text-sm font-medium">
         Checks against documentation
       </h3>
       <CheckList checks={participant.checks} />
-      <h3 className="text-ink-3 mt-8 mb-2 font-mono text-[11px] tracking-wide uppercase">
+      <h3 className="text-ink-2 mt-10 mb-3 text-sm font-medium">
         Blocks · median AE over kept-trial bins
       </h3>
       <BlockTable participant={participant} />
-      <h3 className="text-ink-3 mt-8 mb-2 font-mono text-[11px] tracking-wide uppercase">
+      <h3 className="text-ink-2 mt-10 mb-3 text-sm font-medium">
         Preprocessing · computed, both presets
       </h3>
       <p className="text-ink-2 mb-4 max-w-[68ch] text-sm leading-relaxed">
@@ -147,7 +147,7 @@ export default async function DataExplorerPage() {
 
   return (
     <>
-      <PageHeader index="02" title="Data Explorer">
+      <PageHeader title="Data Explorer">
         Every session and block in the Dryad release, loaded from the original MATLAB files and
         checked against the paper and dataset README. Only aggregates and metadata reach the
         browser. Raw neural matrices stay on disk.

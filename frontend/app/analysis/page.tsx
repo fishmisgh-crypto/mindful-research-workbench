@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { DriftPlot } from "@/components/charts/DriftPlot";
 import { DriftChart } from "@/components/DriftChart";
 import { EmptyState } from "@/components/EmptyState";
 import { KeyValueTable } from "@/components/KeyValueTable";
@@ -40,7 +41,7 @@ function Choice({
 }) {
   return (
     <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-sm">
-      <span className="text-ink-3 w-24 font-mono text-[11px] tracking-wide uppercase">{label}</span>
+      <span className="text-ink-3 w-24 text-[13px]">{label}</span>
       {options.map((o) => (
         <Link
           key={o.id}
@@ -76,7 +77,7 @@ export default async function DriftAnalysisPage({ searchParams }: { searchParams
 
   return (
     <>
-      <PageHeader index="03" title="Drift Analysis">
+      <PageHeader title="Drift Analysis">
         Window-level KLD, D<sub>KL</sub>(P<sub>reference</sub> ‖ P<sub>current</sub>), and median
         angular error over time. They are drawn as two stacked panels on one time axis, with
         session boundaries marked and excluded windows left as gaps.
@@ -135,12 +136,33 @@ export default async function DriftAnalysisPage({ searchParams }: { searchParams
                   dayOfSession={dayOfSession}
                   referenceDays={d.reference_days}
                   xLabel={`Window index (each window 60 s of kept-trial bins; sessions labelled by trial day)`}
+                  wrap={(svg) => (
+                    <DriftPlot
+                      kld={w.kld}
+                      medianAe={w.median_ae}
+                      day={w.day}
+                      sessionIndex={w.session_index}
+                      referenceDays={d.reference_days}
+                      filename={`mindful_${d.participant}_${d.preset}_${features}`}
+                      fallback={svg}
+                    />
+                  )}
                 />
+                <p className="mt-4 text-sm">
+                  <a
+                    href={`/export/${d.participant}?preset=${d.preset}&feature_set=${features}`}
+                    className="decoration-rule-strong hover:decoration-ink underline underline-offset-4"
+                    download
+                  >
+                    Download this window table (CSV)
+                  </a>
+                  <span className="text-ink-3"> · one row per window, no neural data</span>
+                </p>
                 <p className="text-ink-3 mt-3 max-w-[72ch] text-[13px] leading-relaxed">
                   KLD is a divergence in nats, not a percentage. Gaps are the last {d.window_bins / d.step_bins}{" "}
                   windows of each session, which run into the next session and are set to NaN as in
-                  the original code. How KLD tracks angular error (the correlation) is computed in
-                  Phase 5.
+                  the original code. How closely KLD tracks angular error (the correlation) is on the
+                  Reproduction Report.
                 </p>
               </Section>
 

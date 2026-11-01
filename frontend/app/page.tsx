@@ -1,15 +1,19 @@
 import { EmptyState } from "@/components/EmptyState";
 import { KeyValueTable } from "@/components/KeyValueTable";
-import { PageHeader } from "@/components/PageHeader";
+import { OverviewHero } from "@/components/OverviewHero";
 import { Section } from "@/components/Section";
 import { StatusMark } from "@/components/StatusMark";
-import { getHealth, getReport } from "@/lib/api";
+import { getAnalysis, getHealth, getReport } from "@/lib/api";
 import { PARTICIPANTS, PUBLISHED_TARGETS, STUDY } from "@/lib/study";
 
 export const dynamic = "force-dynamic";
 
 export default async function OverviewPage() {
-  const [health, report] = await Promise.all([getHealth(), getReport()]);
+  const [health, report, analysis] = await Promise.all([
+    getHealth(),
+    getReport(),
+    getAnalysis("T11", "upstream", "pca5"),
+  ]);
   const reproduced = (participant: string, configuration: string) => {
     if (!report.ok) return null;
     const fs = configuration === "PCA-5" ? "pca5" : "extended9";
@@ -18,12 +22,7 @@ export default async function OverviewPage() {
 
   return (
     <>
-      <PageHeader index="01" title="Overview">
-        An independent Python reproduction of MINDFUL, a method that tracks drift in chronic
-        intracortical recordings by comparing each minute of neural activity with a reference
-        period using the Kullback–Leibler divergence, and asks how well that drift predicts
-        decoder error.
-      </PageHeader>
+      <OverviewHero analysis={analysis} report={report} />
 
       <Section title="System status" note="GET /api/health">
         {health.ok ? (
@@ -84,7 +83,7 @@ export default async function OverviewPage() {
         />
       </Section>
 
-      <Section title="Participants" note="From the paper; not yet verified against data">
+      <Section title="Participants" note="From the paper; checked against the released files on the Data Explorer">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[40rem] text-left text-sm">
             <thead className="text-ink-3 border-rule-strong border-b">

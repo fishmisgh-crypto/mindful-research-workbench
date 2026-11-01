@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { EmptyState } from "@/components/EmptyState";
 import { KeyValueTable } from "@/components/KeyValueTable";
 import { PageHeader } from "@/components/PageHeader";
+import { AeBinnedPlot } from "@/components/charts/AeBinnedPlot";
 import { ScatterChart } from "@/components/ScatterChart";
 import { Section } from "@/components/Section";
 import { StatusMark } from "@/components/StatusMark";
@@ -188,7 +189,7 @@ export default async function ReproductionReportPage() {
   if (!result.ok) {
     return (
       <>
-        <PageHeader index="04" title="Reproduction Report" />
+        <PageHeader title="Reproduction Report" />
         <Section title="Published vs reproduced">
           <EmptyState
             title="Report unavailable"
@@ -226,7 +227,7 @@ export default async function ReproductionReportPage() {
 
   return (
     <>
-      <PageHeader index="04" title="Reproduction Report">
+      <PageHeader title="Reproduction Report">
         Correlation between window KLD and median angular error, reproduced from
         the released data and compared with the published values. Every run in
         the matrix is shown as computed. A correlation describes how closely KLD
@@ -294,6 +295,16 @@ export default async function ReproductionReportPage() {
                 y: row.bins.kld[i],
               }))}
               xMax={180}
+              wrap={(svg) => (
+                <AeBinnedPlot
+                  meanAe={row.bins.mean_ae}
+                  kld={row.bins.kld}
+                  n={row.bins.n}
+                  lowerDeg={row.bins.lower_deg}
+                  filename={`mindful_${row.participant}_fig1b`}
+                  fallback={svg}
+                />
+              )}
               xLabel="Mean angular error of bin (degrees)"
               yLabel="KLD (nats)"
             />

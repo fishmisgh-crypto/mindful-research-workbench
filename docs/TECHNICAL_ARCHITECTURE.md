@@ -84,7 +84,7 @@ A run takes 30 s to a few minutes, depending on step size (T11 at 1 s has about 
 | POST | `/api/analysis/runs` | start a run → run id |
 | GET | `/api/analysis/runs/{id}` | status, config, window table (KLD, median AE, validity), PCA diagnostics, correlation |
 | GET | `/api/report` | published vs. reproduced comparison for all completed primary runs |
-| GET | `/api/exports/{id}.csv` | window-level CSV for a run |
+| GET | `/api/exports/{participant}.csv?preset=&feature_set=` | window-level CSV (proxied by the frontend at `/export/{participant}`) |
 
 Downsampled feature traces for plots (e.g. one PC over time) are computed server-side and returned as aggregated series. Raw neural matrices are never sent to the browser.
 
