@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const SCREENSHOT_DIR = "../reports/screenshots/phase2";
+const SCREENSHOT_DIR = "../reports/screenshots/phase3";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/data");
@@ -13,6 +13,9 @@ test("data explorer lists both participants with every block", async ({ page }) 
   await expect(page.getByRole("heading", { name: "Participant T5" })).toBeVisible();
   await expect(page.getByRole("link", { name: /^Block_\d+$/ })).toHaveCount(50);
   await expect(page.getByText(/^sha256 [0-9a-f]{64}$/)).toBeVisible();
+  await expect(page.getByText("Preprocessing · computed, both presets")).toHaveCount(2);
+  await expect(page.getByRole("cell", { name: "Reference bins (AE < 4°)" })).toHaveCount(2);
+  await expect(page.getByText("day_2121 + day_2126").first()).toBeVisible();
   await page.screenshot({ path: `${SCREENSHOT_DIR}/02-data-explorer.png`, fullPage: true });
 });
 

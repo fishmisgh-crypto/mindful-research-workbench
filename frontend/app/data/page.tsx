@@ -7,7 +7,14 @@ import { KeyValueTable } from "@/components/KeyValueTable";
 import { PageHeader } from "@/components/PageHeader";
 import { Section } from "@/components/Section";
 import { CheckMark } from "@/components/StatusMark";
-import { getDatasetSummary, type ParticipantSummary } from "@/lib/api";
+import { PreprocessTable } from "@/components/PreprocessTable";
+import {
+  getDatasetSummary,
+  getPreprocess,
+  type ApiResult,
+  type ParticipantSummary,
+  type PreprocessDiagnostics,
+} from "@/lib/api";
 import { bytes, deg, fixed, int, pct } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Data Explorer" };
@@ -76,7 +83,13 @@ function BlockTable({ participant }: { participant: ParticipantSummary }) {
   );
 }
 
-function ParticipantSection({ participant }: { participant: ParticipantSummary }) {
+function ParticipantSection({
+  participant,
+  preprocess,
+}: {
+  participant: ParticipantSummary;
+  preprocess: [ApiResult<PreprocessDiagnostics>, ApiResult<PreprocessDiagnostics>];
+}) {
   return (
     <Section
       title={`Participant ${participant.id}`}
@@ -109,12 +122,28 @@ function ParticipantSection({ participant }: { participant: ParticipantSummary }
         Blocks · median AE over kept-trial bins
       </h3>
       <BlockTable participant={participant} />
+      <h3 className="text-ink-3 mt-8 mb-2 font-mono text-[11px] tracking-wide uppercase">
+        Preprocessing · computed, both presets
+      </h3>
+      <p className="text-ink-2 mb-4 max-w-[68ch] text-sm leading-relaxed">
+        Rolling z-score per block, kept-trial bins, windows over the joined bins, reference bins
+        with angular error below 4°, and PCA fitted on those reference bins only. The presets
+        differ only in window step here (D2), which changes the reference windows slightly.
+      </p>
+      <PreprocessTable upstream={preprocess[0]} paper={preprocess[1]} />
     </Section>
   );
 }
 
 export default async function DataExplorerPage() {
   const summary = await getDatasetSummary();
+  const preprocess = summary.ok
+    ? await Promise.all(
+        summary.data.participants.map((p) =>
+          Promise.all([getPreprocess(p.id, "upstream"), getPreprocess(p.id, "paper")]),
+        ),
+      )
+    : [];
 
   return (
     <>
@@ -157,8 +186,8 @@ export default async function DataExplorerPage() {
               ]}
             />
           </Section>
-          {summary.data.participants.map((p) => (
-            <ParticipantSection key={p.id} participant={p} />
+          {summary.data.participants.map((p, i) => (
+            <ParticipantSection key={p.id} participant={p} preprocess={preprocess[i]} />
           ))}
         </>
       )}

@@ -33,3 +33,13 @@
 - Findings: D5, D6 and D8 have no effect on this release. Q10 resolved. T11 trial counts are off by one in each direction (Q12). `useClick` is per block, not per trial.
 - The inventory cache is keyed on path, size and mtime of every `.mat` file. A CLI-built cache with a relative root is rebuilt once by the API (which uses the absolute root).
 - Approved by the user on 2026-11-01 and committed locally.
+
+## 2026-11-01 — Phase 3: preprocessing and feature engineering
+- Read the upstream code again before porting: `BGzscoreNew.m`, `MINDFUL.m` (`SelectEpoch`, `GetSessionSegmentInds`, `GetSegmentData`, `SetIndstoNaN`, `CalculatePCA`, `PCAtransform`, `getlagX`), `fig2_plot_MINDFUL.m`, `MINDFUL_main_script.m`.
+- Memory: a concatenated 384-feature T11 matrix would be ≈ 1.3 GB, so the pipeline z-scores block by block, fits PCA on reference blocks first, then projects every block to 5 PCs. Only the PC scores (n × 5) are kept. T11 takes ≈ 45 s, T5 ≈ 13 s.
+- Precision: on real data, pandas' rolling z-score matches a direct per-window recomputation to 4e-14 (largest spike-power channels, 9000-bin window).
+- Invariant verified on real data and added as a test: every window that crosses a session end, or is clipped at the end of the data, is inside upstream's session-end NaN set, for both presets.
+- Bugs caught by tests before any real run: pandas returned a read-only array (in-place floor failed); a D7 test fixture had too few windows to test anything.
+- UI fix: preprocessing table labels wrapped one word per line at ≈ 800 px; labels are now nowrap and the table scrolls inside its container.
+- `ui inspirations/` (user's design references: Dribbble shots, motion-site prompts) read; it conflicts with the CLAUDE.md visual rules. Raised for a decision before the dashboard phase; left untracked.
+- Approved by the user on 2026-11-01 and committed locally.

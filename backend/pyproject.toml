@@ -37,5 +37,5 @@ packages = ["app", "mindful"]
 plugins = ["pydantic.mypy"]
 
 [[tool.mypy.overrides]]
-module = ["scipy.*", "h5py.*", "sklearn.*"]
+module = ["scipy.*", "h5py.*", "sklearn.*", "pandas.*"]
 ignore_missing_imports = true

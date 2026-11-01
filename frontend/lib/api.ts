@@ -115,6 +115,59 @@ export interface BlockDetail {
   source_dtypes: Record<string, string>;
 }
 
+export type Preset = "upstream" | "paper";
+
+export interface PreprocessDiagnostics {
+  participant: string;
+  preset: Preset;
+  config: Record<string, number | boolean>;
+  config_digest: string;
+  n_features: number;
+  n_blocks: number;
+  n_selected_bins: number;
+  windows: {
+    n_windows: number;
+    window_bins: number;
+    step_bins: number;
+    lastn: number;
+    n_session_end_windows: number;
+    n_windows_crossing_blocks: number;
+    n_windows_crossing_sessions: number;
+  };
+  reference: {
+    sessions: number[];
+    days: number[];
+    candidate_bins: number;
+    candidate_ae_nan: number;
+    bins: number;
+    ae_max_deg: number;
+    fraction_kept: number | null;
+  };
+  pca: {
+    n_reference_bins: number;
+    explained_pct_top10: number[];
+    cumulative_pct_at_dim: number | null;
+    explained_pct_sum: number | null;
+    reference_score_mean: number[];
+    reference_score_std: number[];
+  };
+  zscore: {
+    trailing_bins: number;
+    blocks_first_bin_zero: number;
+    max_abs_first_bin: number;
+    floored_std_fraction: number | null;
+  };
+  sessions: {
+    session_index: number;
+    day: number;
+    n_bins: number;
+    n_windows: number;
+    pc_mean: number[];
+    pc_std: number[];
+    ae_median_deg: number | null;
+  }[];
+}
+
 export type ApiResult<T> =
   | { ok: true; data: T }
   | { ok: false; error: string; status?: number };
@@ -143,7 +196,12 @@ export const getHealth = () => getJson<HealthResponse>("/api/health");
 
 export const getDatasetSummary = () => getJson<DatasetSummary>("/api/dataset/summary");
 
-export const getBlockDetail = (participant: string, session: string, block: string) =>
+export const getPreprocess = (participant: string, preset: Preset) =>
+  getJson<PreprocessDiagnostics>(
+    `/api/preprocess/${encodeURIComponent(participant)}?preset=${preset}`,
+  );
+
+export const getBlockDetail =(participant: string, session: string, block: string) =>
   getJson<BlockDetail>(
     `/api/dataset/${encodeURIComponent(participant)}/${encodeURIComponent(session)}/${encodeURIComponent(block)}`,
   );

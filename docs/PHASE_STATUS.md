@@ -5,7 +5,7 @@
 | 0 | Research & repository audit | **Approved** | 2026-11-01 |
 | 1 | Application foundation | **Approved** | 2026-11-01 |
 | 2 | Dataset ingestion | **Approved** | 2026-11-01 |
-| 3 | Preprocessing & feature engineering | In progress | 2026-11-01 |
+| 3 | Preprocessing & feature engineering | **Approved** | 2026-11-01 |
 | 4 | KLD & MINDFUL engine | Pending | |
 | 5 | Reproduce the research results | Pending | |
 | 6 | Dashboard integration | Pending | |
@@ -31,3 +31,9 @@
 - frontend: Data Explorer (inventory, checks, block table) and block detail pages (checks, missing data, AE histogram, trial table)
 - tests: 32 backend (synthetic fixtures), 12 Playwright; screenshots in `reports/screenshots/phase2/`
 - docs: DATA_DICTIONARY verified section; D5, D6, D8, Q0, Q5, Q6, Q10 resolved; Q12 added; manifest digest
+
+## Phase 3 deliverables
+- backend/mindful/preprocess/: `config.py` (PreprocessConfig, upstream/paper presets, matlab_round), `zscore.py` (BGzscoreNew port), `lag.py` (getlagX port), `windows.py` (SelectEpoch, GetSessionSegmentInds, GetSegmentData, SetIndstoNaN ports), `pca.py` (MATLAB pca conventions), `pipeline.py` (two-pass participant pipeline, diagnostics, npz output), `run.py` (CLI + cached entry point)
+- backend/app: `GET /api/preprocess/{participant}?preset=upstream|paper`, cached by dataset fingerprint + config digest
+- frontend: preprocessing comparison (upstream vs paper) per participant on the Data Explorer
+- tests: 73 backend (literal 1-based MATLAB transcriptions for windows/reference/NaN logic; loop reference for z-score; sklearn cross-check for PCA), 12 Playwright; screenshots in `reports/screenshots/phase3/`
