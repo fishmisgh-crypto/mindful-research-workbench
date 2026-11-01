@@ -13,6 +13,7 @@ Raw feature matrices are processed one block at a time and never concatenated:
 only the projected scores (n_bins x pca_dim) are kept.
 """
 
+import json
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -48,6 +49,9 @@ class BlockPlan:
     n_bins: int
     n_selected: int
     offset: int  # first position of this block's bins in the concatenation
+
+
+_BLOCK_FIELDS = ("position", "session_index", "day", "number", "n_bins", "n_selected", "offset")
 
 
 @dataclass
@@ -286,18 +290,68 @@ def _round(x: float, digits: int = 6) -> float | None:
 
 
 def save_prepared(prep: PreparedParticipant, path: Path) -> None:
-    """Persist arrays for the KLD engine (npz; derived data, never raw matrices)."""
+    """Persist everything the KLD engine needs (npz; derived data, never raw matrices)."""
     path.parent.mkdir(parents=True, exist_ok=True)
+    audit = prep.zscore_audit
     np.savez_compressed(
         path,
+        participant=np.array(prep.participant),
+        config=np.array(json.dumps(prep.config.as_dict())),
+        blocks=np.array(
+            [[getattr(b, f) for f in _BLOCK_FIELDS] for b in prep.blocks], dtype=np.int64
+        ),
         angle_error=prep.angle_error,
         velocity=prep.velocity,
         velocity_lag=prep.velocity_lag,
         pc_scores=prep.pc_scores,
+        reference_sessions=np.array(prep.reference_sessions, dtype=np.int64),
         reference_bins=prep.reference_bins,
-        window_starts=prep.windows.starts,
-        window_stops=prep.windows.stops,
+        reference_candidate=np.array(
+            [prep.reference_candidate_bins, prep.reference_candidate_ae_nan, prep.n_features]
+        ),
         pca_mean=prep.pca.mean,
         pca_components=prep.pca.components[:, : prep.config.pca_dim],
         pca_explained=prep.pca.explained_pct,
+        pca_n_reference=np.array(prep.pca.n_reference_bins),
+        zscore_audit=np.array(
+            [audit.blocks_first_bin_zero, audit.floored_std_values, audit.total_values]
+        ),
+        zscore_max_first=np.array(audit.max_abs_first_bin),
     )
+
+
+def load_prepared(path: Path) -> PreparedParticipant:
+    """Inverse of `save_prepared`. The window index is rebuilt deterministically."""
+    with np.load(path, allow_pickle=False) as f:
+        config = PreprocessConfig(**json.loads(str(f["config"])))
+        blocks = [BlockPlan(*map(int, row)) for row in f["blocks"]]
+        candidate, n_ref_nan, n_features = (int(v) for v in f["reference_candidate"])
+        first_zero, floored, total = (int(v) for v in f["zscore_audit"])
+        windows = build_windows(
+            np.array([b.n_selected for b in blocks]),
+            np.array([b.session_index for b in blocks]),
+            config.window_bins,
+            config.step_bins,
+        )
+        return PreparedParticipant(
+            participant=str(f["participant"]),
+            config=config,
+            blocks=blocks,
+            windows=windows,
+            angle_error=f["angle_error"],
+            velocity=f["velocity"],
+            velocity_lag=f["velocity_lag"],
+            pc_scores=f["pc_scores"],
+            pca=PcaModel(
+                mean=f["pca_mean"],
+                components=f["pca_components"],
+                explained_pct=f["pca_explained"],
+                n_reference_bins=int(f["pca_n_reference"]),
+            ),
+            reference_sessions=tuple(int(v) for v in f["reference_sessions"]),
+            reference_bins=f["reference_bins"],
+            reference_candidate_bins=candidate,
+            reference_candidate_ae_nan=n_ref_nan,
+            n_features=n_features,
+            zscore_audit=ZscoreAudit(first_zero, floored, total, float(f["zscore_max_first"])),
+        )

@@ -149,7 +149,7 @@ All p < 0.001 [P]. The paper does not report n, the number of windows.
 
 | ID | Topic | Paper | Code | Impact |
 |---|---|---|---|---|
-| D1 | Covariance | sample covariance | uncentered `X'X/n` | Changes KLD values, and the correlations may change too. **High.** |
+| D1 | Covariance | sample covariance | uncentered `X'X/n` | Changes KLD values, and the correlations may change too. **High.** Phase 4: both estimators implemented (`upstream` / `paper` presets); neither produced a rank-deficient window on the real data. |
 | D2 | Window step | 1 s (50 bins) | 10 s (500 bins) in the Fig 1c/2 script | About 10× more windows at 1 s. Correlation changes should be small but are not zero. **Medium.** |
 | D3 | Bins used | "all time bins in a 60-s interval" | trial bins only, with excluded trials removed (`excludeNonTrials=1`) | Medium. The paper also says T11's KLD spikes come from outlier trials and that a supplement shows them excluded. That is inconsistent with the Fig 2 script, which excludes them. |
 | D4 | Window boundaries | not stated | windows cross block boundaries within a session; crossings into the next session are NaN'd afterwards | Low–medium. Conflicts with our rule against crossing recording boundaries, so it will be exposed as an option. Phase 3: with the real block lengths, every window that crosses a session end is inside upstream's session-end NaN set (both presets), so cross-session windows never reach a correlation; only cross-*block* windows do (T11: 140 of 817 at step 500). |

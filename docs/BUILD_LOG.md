@@ -43,3 +43,14 @@
 - UI fix: preprocessing table labels wrapped one word per line at ≈ 800 px; labels are now nowrap and the table scrolls inside its container.
 - `ui inspirations/` (user's design references: Dribbble shots, motion-site prompts) read; it conflicts with the CLAUDE.md visual rules. Raised for a decision before the dashboard phase; left untracked.
 - Approved by the user on 2026-11-01 and committed locally.
+
+## 2026-11-01 — Phase 4: KLD and MINDFUL engine
+- Ported `ProbDistributionEst.m`, `CalcKL.m`, `CalcDistanceFromData`, `GetMedianAEperSeg`, `SetIndstoNaN`. Upstream mixes the uncentred second moment (as Σ) with the sample mean in the KLD formula; the `upstream` preset reproduces exactly that. The `paper` preset uses the centred sample covariance (ddof = 1).
+- Rank test is MATLAB's (`max(size) · eps(σ_max)`), then Cholesky + `cho_solve`; log-determinants from the Cholesky diagonal. No `inv()`, no regularisation.
+- Real data, all four participant × preset combinations, all four feature sets: no rank-deficient or non-PD windows, no negative KLD. The only NaNs are session-end windows (T11: 90 of 817 upstream, 900 of 8298 paper; T5: 36 of 473, 360 of 4841).
+- The 9-D feature set is badly scaled by design (raw cursorVel ≈ 1e-3 appended to PC scores ≈ 1, as upstream): condition numbers up to 4.7e8. On the 10 worst-conditioned real windows, our Cholesky KLD matches a literal `inv()`/SVD port of `CalcKL` to ≤ 9e-11 relative.
+- Runtime: T11 paper ≈ 52 s including preprocessing; cached API responses 0.2–1 s (T11 paper 9-D window table ≈ 575 kB).
+- No correlation computed in this phase (Phase 5).
+- Environment: the machine ran out of memory (0.2 GB of 7.7 GB free; mostly other apps). Parallel Playwright workers crashed (0xC0000409) and the Next server dropped connections. Closed the in-app browser tab and pinned Playwright to one worker; all 15 tests pass.
+- Test fix: the selection test clicked the next link before the previous navigation finished.
+- Approved by the user on 2026-11-01 and committed locally.

@@ -6,7 +6,7 @@
 | 1 | Application foundation | **Approved** | 2026-11-01 |
 | 2 | Dataset ingestion | **Approved** | 2026-11-01 |
 | 3 | Preprocessing & feature engineering | **Approved** | 2026-11-01 |
-| 4 | KLD & MINDFUL engine | Pending | |
+| 4 | KLD & MINDFUL engine | **Approved** | 2026-11-01 |
 | 5 | Reproduce the research results | Pending | |
 | 6 | Dashboard integration | Pending | |
 | 7 | Final validation & delivery | Pending | |
@@ -37,3 +37,11 @@
 - backend/app: `GET /api/preprocess/{participant}?preset=upstream|paper`, cached by dataset fingerprint + config digest
 - frontend: preprocessing comparison (upstream vs paper) per participant on the Data Explorer
 - tests: 73 backend (literal 1-based MATLAB transcriptions for windows/reference/NaN logic; loop reference for z-score; sklearn cross-check for PCA), 12 Playwright; screenshots in `reports/screenshots/phase3/`
+
+## Phase 4 deliverables
+- backend/mindful/stats/: `gaussian.py` (uncentred second moment and sample covariance, D1), `kld.py` (D_KL(ref || cur) via Cholesky; MATLAB rank test; NaN + reason code; singular reference is an error)
+- backend/mindful/: `analysis.py` (AnalysisConfig, upstream/paper presets, window engine, session-end NaN, summaries), `runs.py` (cache-aware orchestration), `cli.py` (`python -m mindful.cli analyse ...`)
+- preprocessing `.npz` is now fully reloadable (`load_prepared`), so analysis does not repeat preprocessing
+- backend/app: `GET /api/analysis/{participant}?preset=&feature_set=&include_windows=`
+- frontend: Drift Analysis page with participant / preset / feature-set selection, stacked KLD and median-AE panels, summary and per-session table
+- tests: 99 backend, 15 Playwright (now single-worker); screenshots in `reports/screenshots/phase4/`

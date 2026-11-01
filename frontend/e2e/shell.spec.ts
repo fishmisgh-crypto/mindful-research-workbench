@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 import { NAV_ITEMS } from "../lib/nav";
 
-const SCREENSHOT_DIR = "../reports/screenshots/phase3";
+const SCREENSHOT_DIR = "../reports/screenshots/phase4";
 
 for (const item of NAV_ITEMS) {
   test(`${item.label} renders with its nav item active`, async ({ page }) => {

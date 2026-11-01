@@ -168,6 +168,55 @@ export interface PreprocessDiagnostics {
   }[];
 }
 
+export type FeatureSet = "pca5" | "extended9" | "velocity2" | "velocity4";
+
+export interface FeatureSetSummary {
+  feature_set: FeatureSet;
+  description: string;
+  dim: number;
+  n_windows: number;
+  n_valid: number;
+  reasons: Record<string, number>;
+  n_reference_bins: number;
+  reference_condition: number | null;
+  kld_min: number | null;
+  kld_median: number | null;
+  kld_max: number | null;
+  kld_negative: number;
+  window_condition_max: number | null;
+  per_session: {
+    session_index: number;
+    day: number;
+    n_windows: number;
+    n_valid: number;
+    kld_median: number | null;
+    median_ae_median: number | null;
+  }[];
+}
+
+export interface AnalysisResponse {
+  participant: string;
+  preset: Preset;
+  config: { covariance_estimator: string; preprocess: Record<string, number | boolean> };
+  config_digest: string;
+  kld_direction: string;
+  window_bins: number;
+  step_bins: number;
+  bin_seconds: number;
+  reference_days: number[];
+  session_days: number[];
+  feature_set: FeatureSet;
+  summaries: Record<FeatureSet, FeatureSetSummary>;
+  windows: {
+    window: number[];
+    session_index: number[];
+    day: number[];
+    kld: (number | null)[];
+    median_ae: (number | null)[];
+    reason: string[];
+  } | null;
+}
+
 export type ApiResult<T> =
   | { ok: true; data: T }
   | { ok: false; error: string; status?: number };
@@ -201,7 +250,12 @@ export const getPreprocess = (participant: string, preset: Preset) =>
     `/api/preprocess/${encodeURIComponent(participant)}?preset=${preset}`,
   );
 
-export const getBlockDetail =(participant: string, session: string, block: string) =>
+export const getAnalysis = (participant: string, preset: Preset, featureSet: FeatureSet) =>
+  getJson<AnalysisResponse>(
+    `/api/analysis/${encodeURIComponent(participant)}?preset=${preset}&feature_set=${featureSet}`,
+  );
+
+export const getBlockDetail = (participant: string, session: string, block: string) =>
   getJson<BlockDetail>(
     `/api/dataset/${encodeURIComponent(participant)}/${encodeURIComponent(session)}/${encodeURIComponent(block)}`,
   );

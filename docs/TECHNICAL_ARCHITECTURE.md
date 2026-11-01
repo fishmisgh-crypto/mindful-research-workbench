@@ -23,8 +23,8 @@ Mindful/
 │   │   ├── preprocess/           # zscore.py, selection.py, pca.py, lag.py
 │   │   ├── stats/                # gaussian.py, kld.py, angular.py, correlation.py
 │   │   ├── windows.py            # window generation + validity masks
-│   │   ├── config.py             # AnalysisConfig dataclass + presets (upstream, paper)
-│   │   ├── pipeline.py           # run_analysis(config) -> AnalysisResult
+│   │   ├── analysis.py           # AnalysisConfig + presets, window engine (named analysis.py: preprocess/pipeline.py exists)
+│   │   ├── runs.py               # cache-aware orchestration (preprocess + analysis on disk)
 │   │   └── cli.py                # `python -m mindful.cli run --participant T11 --preset upstream`
 │   └── tests/                    # pytest; synthetic fixtures labelled SYNTHETIC
 ├── frontend/
