@@ -156,28 +156,34 @@ def prepare_participant(
         config.step_bins,
     )
 
-    # Reference bins: windows of the reference sessions, then AE < threshold.
-    ref_sessions = REFERENCE_SESSIONS[participant.id]
-    candidates = windows.bins_covered(windows.session_reference_windows(ref_sessions))
+    # Reference bins, then AE < threshold:
+    #   "sessions": bins covered by the reference sessions' windows (fig2_plot_MINDFUL.m)
+    #   "all": every selected bin of every session (fig1_grouped_by_AE.m, Fig 1b)
+    if config.reference_scope == "all":
+        ref_sessions = tuple(sorted({p.session_index for p in plans}))
+        candidates = np.arange(angle_error.size, dtype=np.int64)
+    else:
+        ref_sessions = REFERENCE_SESSIONS[participant.id]
+        candidates = windows.bins_covered(windows.session_reference_windows(ref_sessions))
     ae_c = angle_error[candidates]
     reference_bins = candidates[np.nan_to_num(ae_c, nan=np.inf) < config.reference_ae_max_deg]
 
-    # Pass 2: z-score; fit PCA on reference blocks, then project every block.
-    audit = ZscoreAudit()
+    # Pass 2: z-score; fit PCA on reference rows, then project every block. Blocks are
+    # reloaded rather than cached: an all-session reference would otherwise hold every
+    # block's z-scored matrix in memory at once.
     offsets = np.array([p.offset for p in plans], dtype=np.int64)
     block_of_ref = np.searchsorted(offsets, reference_bins, side="right") - 1
-    cached: dict[int, FloatArray] = {}
     ref_rows: list[FloatArray] = []
     for pos in np.unique(block_of_ref).tolist():
-        cached[pos] = _selected_zscore(load_block(ordered[pos][1]), config, audit)
-        local = reference_bins[block_of_ref == pos] - plans[pos].offset
-        ref_rows.append(cached[pos][local])
+        z = _selected_zscore(load_block(ordered[pos][1]), config, ZscoreAudit())
+        ref_rows.append(z[reference_bins[block_of_ref == pos] - plans[pos].offset])
     pca = fit_pca(np.vstack(ref_rows))
     del ref_rows
 
+    audit = ZscoreAudit()
     scores = np.empty((windows.n_bins, config.pca_dim))
     for pos, (_, ref) in enumerate(ordered):
-        z = cached.pop(pos) if pos in cached else _selected_zscore(load_block(ref), config, audit)
+        z = _selected_zscore(load_block(ref), config, audit)
         p = plans[pos]
         scores[p.offset : p.offset + p.n_selected] = pca.transform(z, config.pca_dim)
 

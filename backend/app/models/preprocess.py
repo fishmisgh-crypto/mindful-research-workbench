@@ -61,7 +61,7 @@ class SessionRow(BaseModel):
 class PreprocessDiagnostics(BaseModel):
     participant: str
     preset: str
-    config: dict[str, float | int | bool]
+    config: dict[str, float | int | bool | str]
     config_digest: str
     n_features: int
     n_blocks: int

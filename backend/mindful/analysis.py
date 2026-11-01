@@ -6,7 +6,9 @@ Mirrors `MINDFUL.CalcDistanceFromData`, `GetMedianAEperSeg` and `SetIndstoNaN`:
     estimate and D_KL(reference || window); median of angleError, NaN omitted
   - afterwards the last `lastn` windows of every session are set to NaN for both
 
-Correlation with angular error belongs to Phase 5 and is not computed here.
+Each feature set's summary carries the Pearson / Spearman correlation between
+window median AE and KLD over pairwise-complete windows (computed from unrounded
+values; the JSON window table is rounded for transport).
 """
 
 import hashlib
@@ -20,6 +22,7 @@ import numpy.typing as npt
 
 from mindful.preprocess.config import PRESETS, PreprocessConfig
 from mindful.preprocess.pipeline import FEATURE_SETS, PreparedParticipant
+from mindful.stats.correlation import correlate
 from mindful.stats.gaussian import CovarianceEstimator, estimate
 from mindful.stats.kld import kl_divergence, prepare_reference
 
@@ -133,7 +136,7 @@ def _r(x: float, digits: int = 6) -> float | None:
 
 
 def summarise(table: WindowTable, prep: PreparedParticipant) -> dict[str, Any]:
-    """Aggregates for inspection. No correlation (Phase 5)."""
+    """Aggregates for inspection, including the KLD-vs-median-AE correlation."""
     reasons, counts = np.unique(np.array(table.reason), return_counts=True)
     day_of_session = {b.session_index: b.day for b in prep.blocks}
     per_session = []
@@ -166,6 +169,10 @@ def summarise(table: WindowTable, prep: PreparedParticipant) -> dict[str, Any]:
         "kld_max": _r(float(k.max())) if k.size else None,
         "kld_negative": int((k < 0).sum()),
         "window_condition_max": _r(float(np.nanmax(table.condition)), 3),
+        "correlation": {
+            k: (_r(v, 10) if isinstance(v, float) else v)
+            for k, v in asdict(correlate(table.median_ae, table.kld)).items()
+        },
         "per_session": per_session,
     }
 

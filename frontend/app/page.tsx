@@ -3,13 +3,18 @@ import { KeyValueTable } from "@/components/KeyValueTable";
 import { PageHeader } from "@/components/PageHeader";
 import { Section } from "@/components/Section";
 import { StatusMark } from "@/components/StatusMark";
-import { getHealth } from "@/lib/api";
+import { getHealth, getReport } from "@/lib/api";
 import { PARTICIPANTS, PUBLISHED_TARGETS, STUDY } from "@/lib/study";
 
 export const dynamic = "force-dynamic";
 
 export default async function OverviewPage() {
-  const health = await getHealth();
+  const [health, report] = await Promise.all([getHealth(), getReport()]);
+  const reproduced = (participant: string, configuration: string) => {
+    if (!report.ok) return null;
+    const fs = configuration === "PCA-5" ? "pca5" : "extended9";
+    return report.data.rows.find((r) => r.id === `${participant}-${fs}-upstream`) ?? null;
+  };
 
   return (
     <>
@@ -108,11 +113,11 @@ export default async function OverviewPage() {
         </div>
       </Section>
 
-      <Section title="Validation targets" note="Published values · not yet reproduced">
+      <Section title="Validation targets" note="Published values · reproduced with the upstream preset">
         <p className="text-ink-2 mb-4 max-w-[68ch] text-sm leading-relaxed">
-          Correlation between window-level KLD and median angular error, as reported in the paper.
-          These are what the reproduction will be checked against in Phase 5. They are never used
-          in any calculation.
+          Correlation between window-level KLD and median angular error, as reported in the paper,
+          next to the values reproduced with the released code&apos;s settings. Published values are
+          never used in any calculation. Every run and its settings are on the Reproduction Report.
         </p>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[36rem] text-left text-sm">
@@ -122,7 +127,7 @@ export default async function OverviewPage() {
                 <th className="py-2 pr-6 font-normal">Configuration</th>
                 <th className="py-2 pr-6 text-right font-normal">Pearson r</th>
                 <th className="py-2 pr-6 text-right font-normal">Spearman ρ</th>
-                <th className="py-2 pr-6 text-right font-normal">Reproduced</th>
+                <th className="py-2 pr-6 text-right font-normal">Reproduced r / ρ</th>
                 <th className="py-2 font-normal">Source</th>
               </tr>
             </thead>
@@ -133,7 +138,14 @@ export default async function OverviewPage() {
                   <td className="py-2.5 pr-6">{t.configuration}</td>
                   <td className="py-2.5 pr-6 text-right font-mono">{t.pearson.toFixed(3)}</td>
                   <td className="py-2.5 pr-6 text-right font-mono">{t.spearman.toFixed(3)}</td>
-                  <td className="text-ink-3 py-2.5 pr-6 text-right font-mono">—</td>
+                  <td className="py-2.5 pr-6 text-right font-mono">
+                    {(() => {
+                      const r = reproduced(t.participant, t.configuration);
+                      return r?.pearson_r != null && r.spearman_rho != null
+                        ? `${r.pearson_r.toFixed(3)} / ${r.spearman_rho.toFixed(3)}`
+                        : "—";
+                    })()}
+                  </td>
                   <td className="py-2.5">{t.figure}</td>
                 </tr>
               ))}

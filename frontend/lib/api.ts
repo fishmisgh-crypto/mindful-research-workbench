@@ -120,7 +120,7 @@ export type Preset = "upstream" | "paper";
 export interface PreprocessDiagnostics {
   participant: string;
   preset: Preset;
-  config: Record<string, number | boolean>;
+  config: Record<string, number | boolean | string>;
   config_digest: string;
   n_features: number;
   n_blocks: number;
@@ -197,7 +197,7 @@ export interface FeatureSetSummary {
 export interface AnalysisResponse {
   participant: string;
   preset: Preset;
-  config: { covariance_estimator: string; preprocess: Record<string, number | boolean> };
+  config: { covariance_estimator: string; preprocess: Record<string, number | boolean | string> };
   config_digest: string;
   kld_direction: string;
   window_bins: number;
@@ -215,6 +215,66 @@ export interface AnalysisResponse {
     median_ae: (number | null)[];
     reason: string[];
   } | null;
+}
+
+export interface PublishedTarget {
+  participant: string;
+  feature_set?: string;
+  figure: string;
+  pearson: number;
+  spearman?: number;
+}
+
+export interface ReportRow {
+  id: string;
+  group: "primary" | "secondary" | "ablation";
+  participant: string;
+  feature_set: FeatureSet;
+  preset: string;
+  varies: string;
+  config_digest: string;
+  covariance_estimator: string;
+  step_bins: number;
+  n_windows: number;
+  n_used: number;
+  pearson_r: number | null;
+  pearson_p: number | null;
+  spearman_rho: number | null;
+  spearman_p: number | null;
+  published: PublishedTarget | null;
+  delta_r: number | null;
+  delta_rho: number | null;
+  verdict: "within tolerance" | "differs" | "no published value";
+  kld_min: number | null;
+  kld_max: number | null;
+  n_reference_bins: number;
+}
+
+export interface AeBinnedRow {
+  id: string;
+  participant: string;
+  n_bins: number;
+  variant: string;
+  n_reference_bins: number;
+  pearson_r: number | null;
+  pearson_p: number | null;
+  n_used: number;
+  published: PublishedTarget | null;
+  delta_r: number | null;
+  verdict: ReportRow["verdict"];
+  bins: { lower_deg: number[]; mean_ae: (number | null)[]; kld: (number | null)[]; n: number[]; reason: string[] };
+}
+
+export interface ReproductionReport {
+  generated_at: string;
+  specs_digest: string;
+  upstream_commit: string;
+  source: string;
+  match_tolerance: number;
+  kld_range_approx: Record<string, [number, number]>;
+  correlation_method: string;
+  rows: ReportRow[];
+  ae_binned: AeBinnedRow[];
 }
 
 export type ApiResult<T> =
@@ -250,7 +310,9 @@ export const getPreprocess = (participant: string, preset: Preset) =>
     `/api/preprocess/${encodeURIComponent(participant)}?preset=${preset}`,
   );
 
-export const getAnalysis = (participant: string, preset: Preset, featureSet: FeatureSet) =>
+export const getReport = () => getJson<ReproductionReport>("/api/report");
+
+export const getAnalysis =(participant: string, preset: Preset, featureSet: FeatureSet) =>
   getJson<AnalysisResponse>(
     `/api/analysis/${encodeURIComponent(participant)}?preset=${preset}&feature_set=${featureSet}`,
   );

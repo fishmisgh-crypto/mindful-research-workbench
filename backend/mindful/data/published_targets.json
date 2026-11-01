@@ -1,0 +1,24 @@
+{
+  "_note": "Values reported in Pun et al., Commun. Biol. 7, 1363 (2024). Validation targets for comparison only: never used in any calculation, never tuned toward.",
+  "source": "doi:10.1038/s42003-024-06784-4",
+  "correlations": [
+    {"participant": "T11", "feature_set": "pca5", "figure": "Fig. 1c", "pearson": 0.91, "spearman": 0.90, "group": "primary"},
+    {"participant": "T5", "feature_set": "pca5", "figure": "Fig. 1c", "pearson": 0.59, "spearman": 0.60, "group": "primary"},
+    {"participant": "T11", "feature_set": "extended9", "figure": "Fig. 2c", "pearson": 0.926, "spearman": 0.913, "group": "primary"},
+    {"participant": "T5", "feature_set": "extended9", "figure": "Fig. 2c", "pearson": 0.719, "spearman": 0.759, "group": "primary"},
+    {"participant": "T11", "feature_set": "velocity2", "figure": "Fig. 2a", "pearson": 0.464, "spearman": 0.407, "group": "secondary"},
+    {"participant": "T5", "feature_set": "velocity2", "figure": "Fig. 2a", "pearson": 0.704, "spearman": 0.763, "group": "secondary"},
+    {"participant": "T11", "feature_set": "velocity4", "figure": "Fig. 2b", "pearson": 0.819, "spearman": 0.840, "group": "secondary"},
+    {"participant": "T5", "feature_set": "velocity4", "figure": "Fig. 2b", "pearson": 0.702, "spearman": 0.765, "group": "secondary"}
+  ],
+  "ae_binned": [
+    {"participant": "T11", "figure": "Fig. 1b", "pearson": 0.985, "n_bins_stated": 45},
+    {"participant": "T5", "figure": "Fig. 1b", "pearson": 0.983, "n_bins_stated": 45}
+  ],
+  "kld_range_approx": {
+    "_note": "Approximate y-axis extent of the window KLD, read from the paper (REPRODUCTION_PLAN section 3).",
+    "T11": [0, 2.75],
+    "T5": [0, 0.9]
+  },
+  "match_tolerance": 0.02
+}

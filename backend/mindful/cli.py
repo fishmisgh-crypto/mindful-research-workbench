@@ -18,12 +18,13 @@ def main(argv: list[str]) -> int:
         return 2
     root, processed, participant, preset = Path(argv[1]), Path(argv[2]), argv[3], argv[4]
     t0 = time.perf_counter()
-    result = ensure_analysis(root, processed, participant, preset)
+    config = ANALYSIS_PRESETS[preset]
+    result = ensure_analysis(root, processed, participant, config)
     cfg = result["config"]
     print(
         f"{participant} [{preset}] covariance={cfg['covariance_estimator']} "
         f"step={result['step_bins']} window={result['window_bins']} "
-        f"({time.perf_counter() - t0:.1f} s) -> {analysis_path(processed, participant, preset)}"
+        f"({time.perf_counter() - t0:.1f} s) -> {analysis_path(processed, participant, config)}"
     )
     for name, fs in result["feature_sets"].items():
         s = fs["summary"]

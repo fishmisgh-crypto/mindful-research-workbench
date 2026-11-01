@@ -17,6 +17,7 @@ Each question is either **blocking**, meaning work cannot start without an answe
 | Q10 | verify | Are `labels` and `angleError` consistent with `atan2` recomputation? What about bins where the cursor is on the target (zero vector)? | **Resolved (Phase 2)**: `angleError` = unsigned angle between `labels` (= targetPos − cursorPos) and `cursorVel` in the same bin; within 0.5° in 99.8–100% of bins; NaN exactly at zero cursor-to-target vectors. The provided `angleError` stays authoritative. |
 | Q11 | decision | Python 3.13 (installed) vs 3.12. | Use 3.13 if every pinned dependency has wheels, otherwise install 3.12. Decided in Phase 1. |
 | Q12 | verify | Phase 2 found T11 has 1839 trials and 35 excluded, vs 1840 and 34 in the paper. | Reported as observed; nothing adjusted. Analyses use what the files contain. Revisit only if a Phase 5 result hinges on it. |
+| Q13 | decision | The user's `ui inspirations/` references (dark cinematic, glass, motion) conflict with the CLAUDE.md visual rules. | **Decided 2026-11-01 (user accepted the proposal):** apply the inspiration styling to the Overview and section headers; charts and data tables keep the scientific rules. Implemented in Phase 6, with the CLAUDE.md visual rules updated to match. |
 
 Defaults in effect since Phase 0 approval (2026-11-01). The user approved Phase 0 without objecting to these; each can still be revisited:
 - Q1: report the `upstream` and `paper` presets side by side.

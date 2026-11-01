@@ -7,6 +7,7 @@ included because reference bins are defined through the window index (D2, D7).
 import hashlib
 import json
 from dataclasses import asdict, dataclass
+from typing import Literal
 
 # Reference sessions by chronological position (1-based) [C MINDFUL_main_script.m:43-45].
 REFERENCE_SESSIONS: dict[str, tuple[int, ...]] = {"T11": (1,), "T5": (1, 2)}
@@ -21,6 +22,7 @@ class PreprocessConfig:
     pca_dim: int = 5
     reference_ae_max_deg: float = 4.0  # strict "<"; NaN AE is excluded
     include_excluded_trials: bool = False  # D3 ablation; upstream drops excludeTrials
+    reference_scope: Literal["sessions", "all"] = "sessions"  # "all": Fig 1b script
     velocity_lag_bins: int = 1
 
     def __post_init__(self) -> None:

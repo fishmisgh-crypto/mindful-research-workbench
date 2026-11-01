@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 
 from app.services.dataset import DatasetNotFound
+from mindful.analysis import ANALYSIS_PRESETS
 from mindful.runs import ensure_analysis
 
 _lock = threading.Lock()
@@ -16,4 +17,4 @@ def get_analysis(
     if not (data_dir / participant).is_dir():
         raise DatasetNotFound(f"participant folder not found: {data_dir / participant}")
     with _lock:
-        return ensure_analysis(data_dir, processed_dir, participant, preset)
+        return ensure_analysis(data_dir, processed_dir, participant, ANALYSIS_PRESETS[preset])

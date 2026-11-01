@@ -14,29 +14,33 @@ from typing import Any
 
 from mindful.io.discovery import discover_participant
 from mindful.io.inventory import fingerprint
-from mindful.preprocess.config import PRESETS
+from mindful.preprocess.config import PRESETS, PreprocessConfig
 from mindful.preprocess.pipeline import diagnostics, prepare_participant, save_prepared
 
 
-def output_stem(out_dir: Path, participant_id: str, preset: str) -> Path:
-    return out_dir / f"{participant_id}_{preset}_{PRESETS[preset].digest()}"
+def output_stem(out_dir: Path, participant_id: str, config: PreprocessConfig) -> Path:
+    """Cache files are keyed by participant and config digest, not by preset name."""
+    return out_dir / f"{participant_id}_{config.digest()}"
 
 
 def run_and_save(
-    root: Path, participant_id: str, preset: str, out_dir: Path | None
+    root: Path,
+    participant_id: str,
+    config: PreprocessConfig,
+    out_dir: Path | None,
+    label: str = "custom",
 ) -> dict[str, Any]:
-    """Prepare one participant with a preset; optionally persist diagnostics and arrays."""
-    config = PRESETS[preset]
+    """Prepare one participant; optionally persist diagnostics and arrays."""
     t0 = time.perf_counter()
     prep = prepare_participant(discover_participant(root, participant_id), config)
     diag: dict[str, Any] = {
-        "preset": preset,
+        "preset": label,
         "dataset_fingerprint": fingerprint(root),
         **diagnostics(prep),
         "elapsed_s": round(time.perf_counter() - t0, 1),
     }
     if out_dir is not None:
-        stem = output_stem(out_dir, participant_id, preset)
+        stem = output_stem(out_dir, participant_id, config)
         save_prepared(prep, stem.with_suffix(".npz"))
         stem.with_suffix(".json").write_text(json.dumps(diag, indent=2), encoding="utf-8")
     return diag
@@ -79,7 +83,7 @@ def main(argv: list[str]) -> int:
         print(__doc__)
         return 2
     out_dir = Path(argv[3]) if len(argv) > 3 else None
-    _print_summary(run_and_save(Path(argv[0]), argv[1], argv[2], out_dir))
+    _print_summary(run_and_save(Path(argv[0]), argv[1], PRESETS[argv[2]], out_dir, argv[2]))
     return 0
 
 

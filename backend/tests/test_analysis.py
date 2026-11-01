@@ -78,7 +78,9 @@ def test_run_analysis_covers_all_feature_sets_and_serialises(prep: PreparedParti
     s = out["feature_sets"]["extended9"]["summary"]
     assert s["dim"] == 9 and s["n_windows"] == prep.windows.n_windows
     assert sum(s["reasons"].values()) == s["n_windows"]
-    assert "pearson" not in json.dumps(out).lower()  # correlation belongs to Phase 5
+    corr = s["correlation"]
+    assert corr["n"] == s["n_valid"] and -1 <= corr["pearson_r"] <= 1
+    json.dumps(out)  # serialisable
 
 
 def test_prepared_npz_round_trip(prep: PreparedParticipant, tmp_path: Path) -> None:

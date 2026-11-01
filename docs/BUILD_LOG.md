@@ -54,3 +54,13 @@
 - Environment: the machine ran out of memory (0.2 GB of 7.7 GB free; mostly other apps). Parallel Playwright workers crashed (0xC0000409) and the Next server dropped connections. Closed the in-app browser tab and pinned Playwright to one worker; all 15 tests pass.
 - Test fix: the selection test clicked the next link before the previous navigation finished.
 - Approved by the user on 2026-11-01 and committed locally.
+
+## 2026-11-01 — Phase 5: reproduce the research results
+- Read `fig1_grouped_by_AE.m` again: Fig 1b uses an all-session AE < 4 reference and computes only 44 of 45 AE bins (the loop runs to `length - 1`). Added `reference_scope = "all"` and both bin counts.
+- Removed the reference-block cache from the preprocessing pipeline. With an all-session reference it would hold every z-scored block in memory (≈ 1.3 GB on an 8 GB machine). Blocks are reloaded instead.
+- Generalised caches to config digests, so ablations are ordinary configurations.
+- The first full run took 306 s and then crashed while printing: the Windows console (cp1252) cannot encode Δ / ρ. The report had already been written. Fixed with UTF-8 stdout. Removed superseded preset-named cache files (≈ 170 MB).
+- After seeing that the D3 ablation matched T11's PCA-5 and 9-D values, ablations were extended from 2 to all 4 feature sets. All four were already computed, so this makes the matrix complete rather than selective. Nothing was tuned or dropped.
+- Results: see docs/REPRODUCTION_RESULTS.md.
+- UI fixes: the comparison tables overflowed the content column; replaced the all-identical p-value column with one data-driven line; the tolerance column now reads within / differs instead of pass / warn.
+- Approved by the user on 2026-11-01 and committed locally. Design direction for Phase 6 decided (OPEN Q13).

@@ -8,6 +8,7 @@ from typing import Any
 
 from app.services.dataset import DatasetNotFound
 from mindful.io.inventory import fingerprint
+from mindful.preprocess.config import PRESETS
 from mindful.preprocess.run import output_stem, run_and_save
 
 log = logging.getLogger(__name__)
@@ -20,7 +21,8 @@ def get_diagnostics(
     if not (data_dir / participant).is_dir():
         raise DatasetNotFound(f"participant folder not found: {data_dir / participant}")
     out_dir = processed_dir / "preprocess"
-    path = output_stem(out_dir, participant, preset).with_suffix(".json")
+    config = PRESETS[preset]
+    path = output_stem(out_dir, participant, config).with_suffix(".json")
     with _lock:
         current = fingerprint(data_dir)
         try:
@@ -31,4 +33,4 @@ def get_diagnostics(
             pass
         log.info("Preprocessing %s with preset %s", participant, preset)
         out_dir.mkdir(parents=True, exist_ok=True)
-        return run_and_save(data_dir, participant, preset, out_dir)
+        return run_and_save(data_dir, participant, config, out_dir, label=preset)

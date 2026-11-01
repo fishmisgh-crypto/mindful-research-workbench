@@ -7,7 +7,7 @@
 | 2 | Dataset ingestion | **Approved** | 2026-11-01 |
 | 3 | Preprocessing & feature engineering | **Approved** | 2026-11-01 |
 | 4 | KLD & MINDFUL engine | **Approved** | 2026-11-01 |
-| 5 | Reproduce the research results | Pending | |
+| 5 | Reproduce the research results | **Approved** | 2026-11-01 |
 | 6 | Dashboard integration | Pending | |
 | 7 | Final validation & delivery | Pending | |
 
@@ -45,3 +45,12 @@
 - backend/app: `GET /api/analysis/{participant}?preset=&feature_set=&include_windows=`
 - frontend: Drift Analysis page with participant / preset / feature-set selection, stacked KLD and median-AE panels, summary and per-session table
 - tests: 99 backend, 15 Playwright (now single-worker); screenshots in `reports/screenshots/phase4/`
+
+## Phase 5 deliverables
+- backend/mindful/: `stats/correlation.py` (pairwise-complete Pearson/Spearman), `ae_binned.py` (Fig 1b port, 44- and 45-bin variants), `reproduce.py` (run matrix: 8 primary, 4 secondary, 20 single-parameter ablations, 4 Fig 1b variants; comparison; CLI), `data/published_targets.json` (comparison only)
+- preprocessing: `reference_scope` ("sessions" | "all", the latter for Fig 1b); blocks are no longer cached between passes (memory)
+- caches keyed by config digest, so any configuration can be run
+- backend/app: `GET /api/report`
+- frontend: Reproduction Report page (summary, primary, ablations, velocity sets, Fig 1b scatters, provenance); Overview shows reproduced r / ρ next to published targets
+- docs/REPRODUCTION_RESULTS.md (generated from the report JSON)
+- tests: 110 backend, 18 Playwright; screenshots in `reports/screenshots/phase5/`
