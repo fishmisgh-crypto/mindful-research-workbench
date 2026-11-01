@@ -62,10 +62,10 @@ data/raw/*.mat ─► io.discovery ─► io.matfile ─► validation report
 ```
 A run takes 30 s to a few minutes, depending on step size (T11 at 1 s has about 8,700 windows of 5–9 dimensions). Runs go into a simple in-process background task with a status endpoint, plus result caching. No job-queue library.
 
-## Stack and versions (to be pinned in Phase 1)
+## Stack and versions (pinned in Phase 1; exact versions in backend/requirements.lock and frontend/package-lock.json)
 | Layer | Choice | Note |
 |---|---|---|
-| Python | 3.12 (3.13.14 installed; 3.12 preferred for wheel availability, or 3.13 if all deps have wheels) | decided in Phase 1 after a dependency check |
+| Python | 3.13.14 | all dependencies ship cp313 wheels (checked in Phase 1) |
 | Science | numpy, scipy, pandas, scikit-learn (only for cross-checking PCA), h5py, pyarrow | |
 | API | FastAPI, uvicorn, pydantic v2, pydantic-settings | |
 | Tests | pytest, hypothesis (property tests for KLD), ruff, mypy | |
@@ -93,7 +93,7 @@ Downsampled feature traces for plots (e.g. one PC over time) are computed server
 - **Recommendation:** git-ignore the clone and record the URL and commit in `REPRODUCIBILITY_MANIFEST.json`, with a setup script that re-clones and checks the commit. This keeps the authors' code out of our history. Their license allows redistribution with the notice, so committing it as a vendored copy is also legal (OPEN Q8).
 
 ## Design system (summary — full spec in Phase 1)
-- Colors: warm off-white `#F7F5F0` background, near-black `#141414` text, gray `#D9D5CC` hairlines, and a single accent (oxblood `#8A2B1F` or deep ink-blue, chosen in Phase 1). Data series are drawn in near-black plus the accent only.
+- Colors: warm off-white `#F7F5F0` background, near-black `#141414` text, gray `#D9D5CC` hairlines, and a single accent, oxblood `#8A2B1F` (chosen in Phase 1). Implemented tokens: paper `#F6F4EE`, ink `#161513`, rule `#DCD7CB`. Data series are drawn in near-black plus the accent only.
 - Type: display serif for titles (e.g. *Newsreader* or *Source Serif 4*), *Inter* or *IBM Plex Sans* for UI text, *IBM Plex Mono* / *JetBrains Mono* for numbers. All self-hosted through `next/font`.
 - Layout: left rail with the five navigation items, a 12-column content grid, hairline separators instead of cards, square corners (≤ 2 px radius).
 - Charts: KLD and median AE as two separate stacked panels sharing one x-axis (no dual y-axis). Session boundaries drawn as hairline rules. NaN windows shown as gaps, never interpolated. The participant and preset are printed in every chart title.

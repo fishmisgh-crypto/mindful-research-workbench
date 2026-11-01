@@ -12,3 +12,14 @@
   - Full list in RESEARCH_SPEC §5.
 - Environment: Python 3.13.14, Node 24.18.1, npm 11.16.0. MATLAB is not installed.
 - No application code written (per Phase 0 rules).
+
+## 2026-11-01 — Phase 1: application foundation
+- Paused partway because drive C: was full (~50 MB free). Resumed after the npm and pip caches were cleared and the drive had ~11.4 GB free. The five layout components that failed to save were rewritten.
+- Python: kept 3.13.14. Every dependency had a cp313 wheel. Pinned in `backend/requirements.lock` (fastapi 0.162.0, numpy 2.5.4, scipy 1.18.1, pandas 3.1.0, scikit-learn 1.9.1, h5py 3.16.0, pyarrow 26.0.0, pydantic 2.14.2).
+- `pip install -e .` failed: the isolated build environment could not resolve setuptools. Installed the dependency list directly instead. The backend is not installed as a package; pytest uses `pythonpath = ["."]`.
+- mypy strict: scipy, h5py and sklearn have no bundled stubs, so a `ignore_missing_imports` override was added for those three modules only.
+- Frontend: Next.js 15.5.28, React 19.1.0, Tailwind 4.3.3, TypeScript 5.9.3, Playwright 1.56.1. Plotly is deferred to Phase 6 (no charts yet).
+- Design decisions: oxblood `#8A2B1F` is the single accent. Fonts are Newsreader (display), IBM Plex Sans (UI) and IBM Plex Mono (numbers), self-hosted via `next/font`.
+- Fixed during review: the sidebar's right rule stopped at viewport height; the phone-width test now also asserts the page rendered.
+- Windows gotcha: stopping the background `npm run start` shell left its `node` child holding port 3000, and Playwright reused that stale server after a rebuild ("Application error"). Killed the process; noted in CLAUDE.md.
+- Approved by the user on 2026-11-01 and committed locally.

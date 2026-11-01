@@ -33,9 +33,12 @@ After a phase is approved: update docs, run tests, review the diff, confirm no d
 - Code style: type hints, small functions, short docstrings, few comments.
 
 ## Commands (filled in from Phase 1)
-- Backend: _TBD_
-- Frontend: _TBD_
-- Tests: _TBD_
+- Backend (from `backend/`): `.venv/Scripts/python -m uvicorn app.main:app --host 127.0.0.1 --port 8000`
+- Frontend (from `frontend/`): `npm run dev` (dev) or `npm run build && npm run start` (production), both on 127.0.0.1:3000
+- Backend checks: `.venv/Scripts/python -m pytest -q`, `-m ruff check .`, `-m ruff format --check .`, `-m mypy`
+- Frontend checks: `npm run typecheck`, `npm run lint`, `npm run test:e2e` (needs the API running; saves screenshots to `reports/screenshots/phase1/`)
+- Backend setup: `python -m venv .venv` then `.venv/Scripts/python -m pip install -r requirements.lock` (pinned versions)
+- Windows: after rebuilding the frontend, make sure no old `next start` still holds port 3000. Playwright reuses an existing server, and a stale one serves mismatched chunks.
 
 ## Visual design rules
 - Editorial scientific instrument, not a SaaS dashboard. Warm off-white / near-black / gray hairlines, **one** accent at most.
